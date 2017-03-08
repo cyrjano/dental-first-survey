@@ -82,7 +82,8 @@ let rendererConfig = {
     new webpack.ProvidePlugin({
       $: "jquery",
       jQuery: "jquery",
-      "window.jQuery": "jquery"
+      "window.jQuery": "jquery",
+      'Tether':'tether'
     }),
     new ExtractTextPlugin('styles.css'),
     new HtmlWebpackPlugin({
