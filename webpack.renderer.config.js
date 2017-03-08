@@ -79,6 +79,11 @@ let rendererConfig = {
     ]
   },
   plugins: [
+    new webpack.ProvidePlugin({
+      $: "jquery",
+      jQuery: "jquery",
+      "window.jQuery": "jquery"
+    }),
     new ExtractTextPlugin('styles.css'),
     new HtmlWebpackPlugin({
       filename: 'index.html',
