@@ -1,15 +1,23 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import * as actions from './actions'
-import * as getters from './getters'
-import modules from './modules'
-
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  actions,
-  getters,
-  modules,
+  state:{
+    sessions:{},
+    selectedSession: null
+  },
+  mutations:{
+    addSession(state, payload) {
+      state.sessions[payload.sessionId] = payload
+    },
+    selectSession(state, payload){
+      selectedSession: payload.sessionId
+    },
+    addSurvey(state, payload){
+      state.sessions[payload.sessionId].push(payload.survey)
+    }
+  },
   strict: process.env.NODE_ENV !== 'production'
 })
