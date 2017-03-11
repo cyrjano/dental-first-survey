@@ -78,6 +78,8 @@
     "webpack-dev-server": "^2.3.0"
   },
   "dependencies": {
-    "bootstrap-vue": "^0.9.5"
+    "bootstrap-vue": "^0.9.5",
+    "jsforce": "^1.7.1",
+    "keytar": "^3.0.2"
   }
 }

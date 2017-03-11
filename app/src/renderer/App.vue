@@ -1,29 +1,64 @@
 <template>
-  <div id="#app">
-    <b-navbar type="inverse" variant="inverse" class="text-white">
-      <router-link class="navbar-brand" style="width:200px" to="/">
-        <octicon class="align-bottom" name="home"/><span class="p-2">Home</span>
-      </router-link>
-      <router-link class="mt-sm-2 navbar-toggler-right text-white" to="/settings">
-        <octicon class="" name="gear"/>
-      </router-link>
+  <div id="app">
+    <b-navbar type="inverse" variant="inverse" class="text-white navbar-toggleable-sm">
+      <b-nav-toggle target="nav_collapse"/>
+      <a href='#' class="navbar-brand">Dental First</a>
+      <b-collapse isNav id="nav_collapse">
+        <b-nav isNavBar>
+            <b-nav-item>
+              <router-link class="text-white" to="/">
+                <octicon name="checklist"/><span class="p-2">Sessions</span>
+              </router-link>
+            </b-nav-item>
+            <b-nav-item>
+              <router-link class="text-white" to="/import">
+                <octicon name="cloud-download"/><span class="pl-1">Import</span>
+              </router-link>
+            </b-nav-item>
+            <b-nav-item>
+              <router-link class="text-white" to="/sfdata">
+                <octicon name="file-directory"/><span class="pl-1">Stored</span>
+              </router-link>
+            </b-nav-item>
+            <b-nav-item>
+              <router-link class="text-white" to="/help">
+                <octicon name="question"/><span class="pl-1">Help</span>
+              </router-link>
+            </b-nav-item>
+        </b-nav>
+      </b-collapse>
     </b-navbar>
-    <div>
-      <router-view></router-view>
+    <div class="m-2 d-flex flex-column flex-grow">
+      <d-title></d-title>
+      <div class="flex-grow d-flex flex-column">
+        <router-view></router-view>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-  import octicon from './components/Octicon.vue'
   import store from 'renderer/vuex/store'
+  import TitleComponent from './components/TitleComponent.vue'
   export default {
-    store
+    store,
+    components:{
+      'd-title':TitleComponent
+    }
   }
 </script>
 
 <style>
 #app{
+  display:flex;
+  flex-direction:column;
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
 }
-
+.flex-grow{
+  flex:1
+}
 </style>
