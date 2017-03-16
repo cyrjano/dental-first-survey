@@ -1,63 +1,51 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import {remote} from 'electron'
-let jsforce = remote.require('jsforce')
+import OAuthElectron from 'salesforce/oauth'
+import {configPath} from 'salesforce/config'
+import storage from 'ya-storage'
 
 Vue.use(Vuex)
 
-
-let conn = new jsforce.Connection();
-
-export default new Vuex.Store({
+let store = new Vuex.Store({
   state:{
     sessions:[],
     selectedSession: null,
     import:{
-      loggedIn:false,
-      instanceUrl:null,
+      appId:null,
+      instanceURL:null,
       accessToken:null,
-      email:'',
-      password:'',
-      show:false
+      refreshToken:null
     }
   },
   mutations:{
-    showModal(state, payload){
-      state.import.show=payload.show
-    },
-    updateEmail(state, {email}){
-      state.import.email = email
-    },
-    updatePassword(state, {password}){
-      state.import.password = password
-    },
-    updateToken(state, {accessToken,instanceUrl}){
-      state.import.accessToken = accessToken
-      state.import.instanceUrl = instanceUrl
-      console.log(state.import)
+    updateSecurity(state, {instanceURL, accessToken, appId, refreshToken, oauthCallbackURL}){
+      state.import.instanceURL = instanceURL || state.import.instanceURL
+      state.import.accessToken = accessToken || state.import.accessToken
+      state.import.appId = appId || state.import.appId
+      state.import.refreshToken = refreshToken || state.import.refreshToken
+      state.import.oauthCallbackURL = oauthCallbackURL || state.import.oauthCallbackURL
     }
   },
   actions:{
-    openLoginDialog({commit}){
-      commit('showModal',{show:true})
+    loadConfig({commit}){
+      storage.get(configPath).then((config)=>{
+        commit('updateSecurity', config)
+      })
     },
-    closeLoginDialog({commit}){
-      commit('showModal',{show:false})
+    saveConfig({state}){
+      return storage.set(configPath,state.import)
     },
-    login({state, commit}){
-      if(!state.import.email){
-        return Promise.reject('Email required')
-      }
-      if(!state.import.password){
-        return Promise.reject('Password required')
-      }
-      return conn.login(state.import.email, state.import.password).then(function(userInfo){
-        commit.UpdateToken({accessToken:conn.accessToken,instanceUrl:conn.intanceUrl})
-        console.dir(userInfo)
-      }).catch(function(err){
-        return Promise.reject(err.message)
+    login({state, commit,dispatch}){
+      let oauth = new OAuthElectron({appId:state.import.appId, oauthCallbackURL:state.import.oauthCallbackURL})
+      return oauth.login().then(function(authResult){
+        commit('updateSecurity', authResult)
+        return dispatch('saveConfig', state.import)
       })
     }
   },
   strict: process.env.NODE_ENV !== 'production'
 })
+
+store.dispatch('loadConfig')
+export default store
