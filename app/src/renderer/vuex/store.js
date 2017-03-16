@@ -1,7 +1,12 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import {remote} from 'electron'
+let jsforce = remote.require('jsforce')
 
 Vue.use(Vuex)
+
+
+let conn = new jsforce.Connection();
 
 export default new Vuex.Store({
   state:{
@@ -11,7 +16,8 @@ export default new Vuex.Store({
       loggedIn:false,
       instanceUrl:null,
       accessToken:null,
-      username:null,
+      email:'',
+      password:'',
       show:false
     }
   },
@@ -19,14 +25,16 @@ export default new Vuex.Store({
     showModal(state, payload){
       state.import.show=payload.show
     },
-    addSession(state, payload) {
-      state.sessions[payload.sessionId] = payload
+    updateEmail(state, {email}){
+      state.import.email = email
     },
-    selectSession(state, payload){
-      selectedSession: payload.sessionId
+    updatePassword(state, {password}){
+      state.import.password = password
     },
-    addSurvey(state, payload){
-      state.sessions[payload.sessionId].push(payload.survey)
+    updateToken(state, {accessToken,instanceUrl}){
+      state.import.accessToken = accessToken
+      state.import.instanceUrl = instanceUrl
+      console.log(state.import)
     }
   },
   actions:{
@@ -35,6 +43,20 @@ export default new Vuex.Store({
     },
     closeLoginDialog({commit}){
       commit('showModal',{show:false})
+    },
+    login({state, commit}){
+      if(!state.import.email){
+        return Promise.reject('Email required')
+      }
+      if(!state.import.password){
+        return Promise.reject('Password required')
+      }
+      return conn.login(state.import.email, state.import.password).then(function(userInfo){
+        commit.UpdateToken({accessToken:conn.accessToken,instanceUrl:conn.intanceUrl})
+        console.dir(userInfo)
+      }).catch(function(err){
+        return Promise.reject(err.message)
+      })
     }
   },
   strict: process.env.NODE_ENV !== 'production'

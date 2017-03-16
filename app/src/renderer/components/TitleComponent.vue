@@ -1,6 +1,6 @@
 <template>
   <div class="bg-success text-white p-2">
-    <h1>{{pageTitle}}</h1>
+    <h3>{{pageTitle}}</h3>
   </div>
 </template>
 <script>
