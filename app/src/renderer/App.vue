@@ -1,5 +1,19 @@
 <template>
   <div id="app">
+    <div class="fixed-bottom">
+      <b-alert state="danger" :show="showError">
+        <button type="button"
+                        class="close"
+                        data-dismiss="alert"
+                        aria-label="Close"
+                        @click.stop.prevent="dismiss"
+          >
+          <span aria-hidden="true">&times;</span>
+        </button>
+        {{errorMessage}}
+
+      </b-alert>
+    </div>
     <b-navbar type="inverse" variant="inverse" class="text-white navbar-toggleable-sm">
       <b-nav-toggle target="nav_collapse"/>
       <a href='#' class="navbar-brand">Dental First</a>
@@ -42,6 +56,19 @@
   import TitleComponent from './components/TitleComponent.vue'
   export default {
     store,
+    computed:{
+      errorMessage(){
+        return this.$store.state.errorMessage
+      },
+      showError(){
+        return !!this.$store.state.errorMessage
+      },
+    },
+    methods:{
+      dismiss(){
+        this.$store.commit('clearError')
+      }
+    },
     components:{
       'd-title':TitleComponent
     }
