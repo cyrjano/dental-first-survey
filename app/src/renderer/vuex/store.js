@@ -9,34 +9,37 @@ Vue.use(Vuex)
 
 let handleError = function(commit){
   return function(error){
-    commit('setError', error)
+    commit('setAlert', {state:'danger', message:error.message})
     return Promise.reject(error)
   }
 }
 
 let store = new Vuex.Store({
   state:{
-    errorMessage:'Hello',
-    import:{
+    alert:{state:'success', message:''},
+    oauth:{
       appId:null,
       instanceURL:null,
       accessToken:null,
-      refreshToken:null
+      refreshToken:null,
+      userId:null
     }
   },
   mutations:{
-    clearError(state){
-      state.errorMessage = ''
+    clearAlert(state){
+      state.alert.message = ''
     },
-    setError(state, {message}){
-      state.errorMessage = message
+    setAlert(state, alert){
+      state.alert.state = alert.state
+      state.alert.message = alert.message
     },
-    updateSecurity(state, {instanceURL, accessToken, appId, refreshToken, oauthCallbackURL}){
-      state.import.instanceURL = instanceURL || state.import.instanceURL
-      state.import.accessToken = accessToken || state.import.accessToken
-      state.import.appId = appId || state.import.appId
-      state.import.refreshToken = refreshToken || state.import.refreshToken
-      state.import.oauthCallbackURL = oauthCallbackURL || state.import.oauthCallbackURL
+    updateSecurity(state, {instanceURL, accessToken, appId, userId, refreshToken, oauthCallbackURL}){
+      state.auth.instanceURL = instanceURL || state.auth.instanceURL
+      state.auth.accessToken = accessToken || state.auth.accessToken
+      state.auth.appId = appId || state.auth.appId
+      state.auth.refreshToken = refreshToken || state.auth.refreshToken
+      state.auth.oauthCallbackURL = oauthCallbackURL || state.auth.oauthCallbackURL
+      state.auth.userId = userId || state.auth.userId
     }
   },
   actions:{
@@ -46,13 +49,14 @@ let store = new Vuex.Store({
       }).catch(handleError(commit))
     },
     saveConfig({state, commit}){
-      return storage.set(configPath, state.import).catch(handleError(commit))
+      return storage.set(configPath, state.auth).catch(handleError(commit))
     },
     login({state, commit, dispatch}){
-      let oauth = new OAuthElectron({appId:state.import.appId, oauthCallbackURL:state.import.oauthCallbackURL})
+      let oauth = new OAuthElectron({appId:state.auth.appId, oauthCallbackURL:state.auth.oauthCallbackURL})
       return oauth.login().then(function(authResult){
         commit('updateSecurity', authResult)
-        return dispatch('saveConfig', state.import)
+        dispatch('saveConfig', state.auth)
+        return authResult
       }).catch(handleError(commit))
     }
   },

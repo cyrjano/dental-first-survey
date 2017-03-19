@@ -2,7 +2,7 @@
   <div class="d-flex flex-column">
     <div class="d-flex flex-row justify-content-start">
       <div class="ml-auto">
-        <b-button @click="signin">{{signInMessage}}</b-button>
+        <b-button @click="signin">Load Data</b-button>
       </div>
     </div>
     <div>
@@ -13,15 +13,18 @@
 <script>
 export default {
   computed:{
-    signInMessage(){
-      return !!this.$store.state.import.accessToken?'Sign Out':'Sign In'
-    }
   },
   methods:{
     signin(){
-      if(!this.$store.state.import.loggedIn){
-        this.$store.dispatch('login').catch(error => this.errorMessage = error.message)
+      let promise;
+      if(this.$store.state.auth.accessToken){
+        promise = Promise.resolve(this.$store.state.auth)
+      } else {
+        promise = this.$store.dispatch('login')
       }
+      promise.then(function(auth){
+        this.$store.dispatch('load')
+      })
     }
   }
 }

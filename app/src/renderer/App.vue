@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="fixed-bottom">
-      <b-alert state="danger" :show="showError">
+      <b-alert :state="alertType" :show="showAlert">
         <button type="button"
                         class="close"
                         data-dismiss="alert"
@@ -10,7 +10,7 @@
           >
           <span aria-hidden="true">&times;</span>
         </button>
-        {{errorMessage}}
+        <octicon :name="icon" />{{alertMessage}}
 
       </b-alert>
     </div>
@@ -57,16 +57,27 @@
   export default {
     store,
     computed:{
-      errorMessage(){
-        return this.$store.state.errorMessage
+      icon(){
+        return {
+          'success':'check',
+          'danger':'stop',
+          'info':'info',
+          'warning':'megaphone'
+        }[this.$store.state.alert.state]
       },
-      showError(){
-        return !!this.$store.state.errorMessage
+      alertType(){
+        return this.$store.state.alert.state
+      },
+      alertMessage(){
+        return this.$store.state.alert.message
+      },
+      showAlert(){
+        return !!this.$store.state.alert.message
       },
     },
     methods:{
       dismiss(){
-        this.$store.commit('clearError')
+        this.$store.commit('clearAlert')
       }
     },
     components:{
