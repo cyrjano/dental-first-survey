@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="fixed-bottom">
-      <b-alert :variant="alertType" :show="showAlert">
+      <b-alert :state="alertType" :show="showAlert">
         <button type="button"
                         class="close"
                         data-dismiss="alert"

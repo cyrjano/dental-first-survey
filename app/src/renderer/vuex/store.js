@@ -44,9 +44,13 @@ let store = new Vuex.Store({
       refreshToken: null,
       userId: null,
       oauthCallbackURL: null
-    }
+    },
+    sites:[],
   },
   mutations: {
+    replaceSites(state, {sites}){
+      state.sites = sites
+    },
     clearAlert (state) {
       console.log('clear Alert')
       state.alert.message = ''
@@ -117,6 +121,17 @@ let store = new Vuex.Store({
             throw error[0]
           }
           throw error
+        }).then(function(response){
+          let sites = response.records.map(function(record){
+            return {
+              id:record.Id,
+              name:record.Name,
+              owner:record.Owner?record.Owner.Name:'None',
+              type:record.Type
+            }
+          })
+          commit('replaceSites', {sites})
+          return sites
         }).catch(handleError(commit))
       })
     }

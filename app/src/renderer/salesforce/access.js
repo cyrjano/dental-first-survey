@@ -1,5 +1,5 @@
 import {DataService} from 'forcejs'
-const GET_SITES_QUERY = "SELECT Account.name, Account.ID, Account.type, Account.BillingAddress, Account.owner.name from Account where Account.RecordType.Name='School Sites' limit 10"
+const GET_SITES_QUERY = "SELECT Account.name, Account.ID, Account.type, Account.owner.name from Account where Account.RecordType.Name='School Sites'"
 export default {
   init (auth) {
     console.log(`Init Token:${auth.accessToken}`)
