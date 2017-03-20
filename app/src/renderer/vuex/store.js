@@ -3,21 +3,41 @@ import Vuex from 'vuex'
 import {remote} from 'electron'
 import OAuthElectron from 'salesforce/oauth'
 import {configPath} from 'salesforce/config'
+import access from 'salesforce/access'
 import storage from 'ya-storage'
 
 Vue.use(Vuex)
+const pick = (o, ...props) => Object.assign({}, ...props.map(prop => ({[prop]: o[prop]})))
 
 let handleError = function(commit){
   return function(error){
     commit('setAlert', {state:'danger', message:error.message})
-    return Promise.reject(error)
   }
 }
 
+let login = function(auth){
+  let oauth = new OAuthElectron(
+    {
+      appId:auth.appId,
+      oauthCallbackURL:auth.oauthCallbackURL
+    })
+  return oauth.login()
+}
+let getAccessToken = function(auth){
+  access.init(auth)
+  if(!auth.accessToken){
+    return access.refreshAccessToken().then(function(accessToken){
+      const newAuth = Object.assign({}, auth, {'accessToken':accessToken})
+      access.init(newAuth)
+      return newAuth
+    })
+  }
+  return auth
+}
 let store = new Vuex.Store({
   state:{
     alert:{state:'success', message:''},
-    oauth:{
+    auth:{
       appId:null,
       instanceURL:null,
       accessToken:null,
@@ -27,37 +47,84 @@ let store = new Vuex.Store({
   },
   mutations:{
     clearAlert(state){
+      console.log('clear Alert')
       state.alert.message = ''
     },
     setAlert(state, alert){
+      console.log(`Set alert:${alert.state}-${alert.message}`)
       state.alert.state = alert.state
       state.alert.message = alert.message
     },
-    updateSecurity(state, {instanceURL, accessToken, appId, userId, refreshToken, oauthCallbackURL}){
-      state.auth.instanceURL = instanceURL || state.auth.instanceURL
-      state.auth.accessToken = accessToken || state.auth.accessToken
-      state.auth.appId = appId || state.auth.appId
-      state.auth.refreshToken = refreshToken || state.auth.refreshToken
-      state.auth.oauthCallbackURL = oauthCallbackURL || state.auth.oauthCallbackURL
-      state.auth.userId = userId || state.auth.userId
+    clearAuthParams(state, params){
+      console.log(`clearing ${params}`)
+      for(const key of params){
+        state.auth[key] = null
+      }
+    },
+    updateAuth(state, payload){
+      for(const prop in payload){
+        if([
+          'instanceURL',
+          'accessToken',
+          'appId',
+          'userId',
+          'refreshToken',
+          'oauthCallbackURL'
+        ].indexOf(prop)>=0){
+          state.auth[prop] = payload[prop] || state.auth[prop]
+        }
+      }
     }
   },
   actions:{
     loadConfig({commit}){
       storage.get(configPath).then((config)=>{
-        commit('updateSecurity', config)
+        commit('updateAuth', config)
       }).catch(handleError(commit))
     },
     saveConfig({state, commit}){
-      return storage.set(configPath, state.auth).catch(handleError(commit))
+      return storage.set(configPath, pick(state.auth,[
+        'instanceURL',
+        'accessToken',
+        'appId',
+        'userId',
+        'refreshToken',
+        'oauthCallbackURL'
+      ])).catch(handleError(commit))
     },
-    login({state, commit, dispatch}){
-      let oauth = new OAuthElectron({appId:state.auth.appId, oauthCallbackURL:state.auth.oauthCallbackURL})
-      return oauth.login().then(function(authResult){
-        commit('updateSecurity', authResult)
-        dispatch('saveConfig', state.auth)
-        return authResult
-      }).catch(handleError(commit))
+    getAuth({commit,dispatch,state}){
+      return Promise.resolve(state.auth).then(function(auth){
+        if(auth.refreshToken){
+          return auth
+        } else {
+          return login(auth).then(function(auth){
+            commit('updateAuth', auth)
+            dispatch('saveConfig')
+            return auth
+          })
+        }
+      }).then(getAccessToken).then(function(auth){
+        commit('updateAuth', auth)
+        dispatch('saveConfig')
+        return auth
+      })
+    },
+    getSites({commit, dispatch, state}, {retry=true}){
+      return dispatch('getAuth').then(function(auth){
+        return access.getSites().catch(function(error){
+          if(retry &&
+            error.length &&
+            error[0].errorCode &&
+            error[0].errorCode == 'INVALID_SESSION_ID'){
+            commit('clearAuthParams',['accessToken'])
+            return dispatch('getSites', {retry:false})
+          }
+          if(error.length){
+            throw error[0]
+          }
+          throw error
+        }).catch(handleError(commit))
+      })
     }
   },
   strict: process.env.NODE_ENV !== 'production'

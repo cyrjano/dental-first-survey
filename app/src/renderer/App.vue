@@ -21,17 +21,17 @@
         <b-nav isNavBar>
             <b-nav-item>
               <router-link class="text-white" to="/">
-                <octicon name="checklist"/><span class="p-2">Sessions</span>
+                <octicon name="checklist"/><span class="p-2">Surveys</span>
               </router-link>
             </b-nav-item>
             <b-nav-item>
               <router-link class="text-white" to="/import">
-                <octicon name="cloud-download"/><span class="pl-1">Import</span>
+                <octicon name="cloud-download"/><span class="pl-1">Sites</span>
               </router-link>
             </b-nav-item>
             <b-nav-item>
               <router-link class="text-white" to="/sfdata">
-                <octicon name="file-directory"/><span class="pl-1">Stored</span>
+                <octicon name="file-directory"/><span class="pl-1">Offline Sites</span>
               </router-link>
             </b-nav-item>
             <b-nav-item>

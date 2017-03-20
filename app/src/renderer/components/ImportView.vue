@@ -2,7 +2,7 @@
   <div class="d-flex flex-column">
     <div class="d-flex flex-row justify-content-start">
       <div class="ml-auto">
-        <b-button @click="signin">Load Data</b-button>
+        <b-button @click="showSites">Show Sites</b-button>
       </div>
     </div>
     <div>
@@ -15,16 +15,8 @@ export default {
   computed:{
   },
   methods:{
-    signin(){
-      let promise;
-      if(this.$store.state.auth.accessToken){
-        promise = Promise.resolve(this.$store.state.auth)
-      } else {
-        promise = this.$store.dispatch('login')
-      }
-      promise.then(function(auth){
-        this.$store.dispatch('load')
-      })
+    showSites(){
+      this.$store.dispatch('getSites', {retry:true}).then((sites)=>console.log(sites))
     }
   }
 }
