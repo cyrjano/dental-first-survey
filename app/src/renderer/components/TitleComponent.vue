@@ -5,8 +5,8 @@
 </template>
 <script>
 export default {
-  computed:{
-    pageTitle(){
+  computed: {
+    pageTitle () {
       return this.$route.meta.title
     }
   }

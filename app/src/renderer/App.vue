@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="fixed-bottom">
-      <b-alert :state="alertType" :show="showAlert">
+      <b-alert :variant="alertType" :show="showAlert">
         <button type="button"
                         class="close"
                         data-dismiss="alert"
@@ -56,32 +56,32 @@
   import TitleComponent from './components/TitleComponent.vue'
   export default {
     store,
-    computed:{
-      icon(){
+    computed: {
+      icon () {
         return {
-          'success':'check',
-          'danger':'stop',
-          'info':'info',
-          'warning':'megaphone'
+          'success': 'check',
+          'danger': 'stop',
+          'info': 'info',
+          'warning': 'megaphone'
         }[this.$store.state.alert.state]
       },
-      alertType(){
+      alertType () {
         return this.$store.state.alert.state
       },
-      alertMessage(){
+      alertMessage () {
         return this.$store.state.alert.message
       },
-      showAlert(){
+      showAlert () {
         return !!this.$store.state.alert.message
-      },
+      }
     },
-    methods:{
-      dismiss(){
+    methods: {
+      dismiss () {
         this.$store.commit('clearAlert')
       }
     },
-    components:{
-      'd-title':TitleComponent
+    components: {
+      'd-title': TitleComponent
     }
   }
 </script>

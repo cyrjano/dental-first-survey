@@ -6,8 +6,8 @@
 </template>
 <script>
   export default {
-    methods:{
-      addSession(){
+    methods: {
+      addSession () {
         this.$router.push('/sessions/add')
       }
     }

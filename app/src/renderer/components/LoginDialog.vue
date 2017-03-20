@@ -34,28 +34,28 @@
 </template>
 <script>
 export default {
-  data(){
+  data () {
     return {
-      errorMessage:''
+      errorMessage: ''
     }
   },
-  computed:{
-    showError(){
+  computed: {
+    showError () {
       return !!this.errorMessage
     },
-    show(){
+    show () {
       return this.$store.state.import.show
     },
-    email(){
+    email () {
       return this.$store.state.import.email
     },
-    password(){
+    password () {
       return this.$store.state.import.password
     }
   },
-  watch:{
-    show(newValue){
-      if(newValue){
+  watch: {
+    show (newValue) {
+      if (newValue) {
         this.errorMessage = ''
         $('#loginDialog').modal('show')
       } else {
@@ -63,18 +63,18 @@ export default {
       }
     }
   },
-  methods:{
-    close(){
+  methods: {
+    close () {
       this.$store.dispatch('closeLoginDialog')
     },
-    updateEmail(e){
-      this.$store.commit('updateEmail', {email:e.target.value})
+    updateEmail (e) {
+      this.$store.commit('updateEmail', {email: e.target.value})
     },
-    updatePassword(e){
-      this.$store.commit('updatePassword', {password:e.target.value})
+    updatePassword (e) {
+      this.$store.commit('updatePassword', {password: e.target.value})
     },
-    login(){
-      this.$store.dispatch('login').then(()=>this.close()).catch((error)=>this.errorMessage = error)
+    login () {
+      this.$store.dispatch('login').then(() => this.close()).catch((error) => this.errorMessage = error)
     }
   }
 }

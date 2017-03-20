@@ -5,12 +5,12 @@
 <script>
 import octicons from 'octicons'
 export default {
-  props:{
-    name:{type:String, required:true}
+  props: {
+    name: {type: String, required: true}
   },
-  computed:{
-    icon(){
-      return octicons[this.name].toSVG({width:21})
+  computed: {
+    icon () {
+      return octicons[this.name].toSVG({width: 21})
     }
   }
 }
