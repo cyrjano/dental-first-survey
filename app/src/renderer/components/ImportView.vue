@@ -1,7 +1,13 @@
 <template>
   <div class="d-flex flex-column">
-    <div class="d-flex flex-row justify-content-end" style="min-height:35px">
-        <b-button @click="showSites">Show Sites</b-button>
+    <div class="d-flex flex-row justify-content-end" style="min-height:40px">
+      <div v-if="show" class="flex-grow">
+        <b-form-fieldset horizontal label="Filter" :label-size="2">
+          <b-form-input v-model="filter" placeholder="Type to Search">
+          </b-form-input>
+        </b-form-fieldset>
+      </div>
+      <b-button @click="showSites">Show Sites</b-button>
     </div>
     <div v-if="show" class="scrollable flex-grow">
       <b-table stripped :items="items" :fields="fields" :current-page="currentPage" :per-page="perPage" :filter="filter">
@@ -15,7 +21,7 @@
           {{item.value}}
         </template>
         <template slot="offlineAction" scope="item">
-          <b-btn size="sm" @click="details(item.item)">Download</b-btn>
+          <b-btn size="sm" :variant="getVariant(item.item)" :disabled="isLoading(item.item)"  @click="downloadSite(item.item)">{{getText(item.item)}}</b-btn>
         </template>
       </b-table>
     </div>
@@ -58,12 +64,20 @@ export default {
     }
   },
   methods: {
+    getVariant({downloaded}){
+      return downloaded ?'success':'primary'
+    },
+    getText({downloaded}){
+      return downloaded|| 'Download'
+    },
+    isLoading({downloading}){
+      return downloading
+    },
+    downloadSite({id}){
+      this.$store.dispatch('downloadSite', {id:id})
+    },
     showSites () {
-      this.$store.dispatch('getSites', {retry: true}).then((sites) => {
-        if (sites) {
-          console.log(sites)
-        }
-      })
+      this.$store.dispatch('getSites', {retry: true})
     }
   }
 }

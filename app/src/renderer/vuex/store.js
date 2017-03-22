@@ -46,6 +46,9 @@ let store = new Vuex.Store({
       oauthCallbackURL: null
     },
     sites:[],
+    downloadedSites:{
+
+    }
   },
   mutations: {
     replaceSites(state, {sites}){
@@ -79,6 +82,15 @@ let store = new Vuex.Store({
           state.auth[prop] = payload[prop] || state.auth[prop]
         }
       }
+    },
+    startDownload(state, {id}){
+      let site = state.sites.find((site)=>site.id === id)
+      site.downloading = true
+    },
+    finishDownload(state, {id}){
+      let site = state.sites.find((site)=>site.id === id)
+      site.downloading = false
+      site.downloaded = new Date().toDateString()
     }
   },
   actions: {
@@ -107,6 +119,10 @@ let store = new Vuex.Store({
         return auth
       })
     },
+    downloadSite({commit, dispatch, state}, {id}){
+      commit('startDownload', {id})
+      commit('finishDownload', {id})
+    },
     getSites ({commit, dispatch, state}, {retry = true}) {
       return dispatch('getAuth').then(function (auth) {
         return access.getSites().catch(function (error) {
@@ -127,7 +143,9 @@ let store = new Vuex.Store({
               id:record.Id,
               name:record.Name,
               owner:record.Owner?record.Owner.Name:'None',
-              type:record.Type
+              type:record.Type,
+              downloading:false,
+              downloaded:'',
             }
           })
           commit('replaceSites', {sites})
