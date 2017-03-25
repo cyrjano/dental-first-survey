@@ -74,6 +74,7 @@ export default {
       return downloading
     },
     downloadSite({id}){
+      console.log(`Downloading Site:${id}`)
       this.$store.dispatch('downloadSite', {id:id})
     },
     showSites () {
