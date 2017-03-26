@@ -2,13 +2,11 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import {remote} from 'electron'
 import OAuthElectron from 'salesforce/oauth'
-import {configPath} from 'salesforce/config'
 import access from 'salesforce/access'
-import storage from 'ya-storage'
+import storage from '../storage'
 import electron from 'electron'
 let app = electron.remote.app
 
-const SITES_PATH = `${app.getPath('documents')}/sjsu_survey/settings/sites`
 Vue.use(Vuex)
 
 let handleError = function (commit) {
@@ -99,7 +97,7 @@ let store = new Vuex.Store({
     },
   },
   actions: {
-    newSession({state, commit}){
+    newSession({state, commit, dispatch}){
       let session = {
         date:Date.now(),
         currentRoom:'',
@@ -111,26 +109,33 @@ let store = new Vuex.Store({
       commit('addSession', session)
       commit('activateSession', session.date)
       commit('selectSite', null)
+      return dispatch('saveSession', {id:session.date})
+    },
+    saveSession({state, commit}, {id}){
+      const session = state.sessions.find(session=>session.date === id)
+      return storage.saveSession(session).catch(handleError(commit))
+    },
+    loadSessions({commit}){
+      storage.loadSessions().then(function(sessions){
+        sessions.sort((a,b)=> b.date - a.date)
+        sessions.map(session => commit('addSession', session))
+      })
     },
     loadConfig ({commit}) {
-      storage.get(configPath).then((config) => {
+      storage.loadConfig().then((config) => {
         commit('updateAuth', config)
       }).catch(handleError(commit))
     },
     saveConfig ({state, commit}) {
-      return storage.set(configPath, state.auth).catch(handleError(commit))
+      return storage.saveConfig(state.auth).catch(handleError(commit))
     },
     loadSites({commit}){
-      storage.get(SITES_PATH).then(sites =>{
+      storage.loadSites().then(sites =>{
         commit('replaceSites', sites)
-      }).catch(err=>{
-        if(err.message.indexOf('exist') < 0){
-          throw err;
-        }
       }).catch(handleError(commit))
     },
     saveSites({state, commit}) {
-      return storage.set(SITES_PATH, state.sites).catch(handleError(commit))
+      return storage.saveSites(state.sites).catch(handleError(commit))
     },
     getAuth ({commit, dispatch, state}) {
       return Promise.resolve(state.auth).then(function (auth) {
@@ -184,4 +189,5 @@ let store = new Vuex.Store({
 
 store.dispatch('loadConfig')
 store.dispatch('loadSites')
+store.dispatch('loadSessions')
 export default store

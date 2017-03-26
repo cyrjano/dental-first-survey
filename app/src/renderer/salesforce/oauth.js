@@ -1,6 +1,5 @@
 'use strict'
 import electron from 'electron'
-import config from './config'
 const BrowserWindow = electron.BrowserWindow || electron.remote.BrowserWindow
 let instanceCounter = 0
 
