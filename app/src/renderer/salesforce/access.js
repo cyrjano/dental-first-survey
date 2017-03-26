@@ -1,5 +1,4 @@
 import {DataService} from 'forcejs'
-const GET_SITES_QUERY = "SELECT Account.name, Account.ID, Account.type, Account.owner.name from Account where Account.RecordType.Name='School Sites'"
 
 let siteQuery = id => `SELECT FROM `
 export default {
@@ -19,10 +18,5 @@ export default {
     let service = DataService.getInstance()
     console.log('Getting Sites...')
     return service.query(GET_SITES_QUERY)
-  },
-  getLeads(id) {
-    let service = DataService.getInstance()
-    console.log(`Downloading Site:${site}`)
-    return service.query(siteQuery(id))
   }
 }

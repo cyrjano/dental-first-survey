@@ -8,15 +8,15 @@ export default [
       {
         path: 'add',
         component: require('components/NewSession'),
-        meta: {title: 'Settings'}
+        meta: {title: 'Sessions'}
       }
     ]
   },
   {
-    path: '/import',
-    name: 'import',
-    component: require('components/ImportView'),
-    meta: {title: 'Import Salesforce Data'}
+    path: '/settings',
+    name: 'settings',
+    component: require('components/SettingsView'),
+    meta: {title: 'Settings'}
   },
   {
     path: '*',

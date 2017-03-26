@@ -25,13 +25,8 @@
               </router-link>
             </b-nav-item>
             <b-nav-item>
-              <router-link class="text-white" to="/import">
-                <octicon name="cloud-download"/><span class="pl-1">Sites</span>
-              </router-link>
-            </b-nav-item>
-            <b-nav-item>
-              <router-link class="text-white" to="/sfdata">
-                <octicon name="file-directory"/><span class="pl-1">Offline Sites</span>
+              <router-link class="text-white" to="/settings">
+                <octicon name="gear"/><span class="pl-1">Settings</span>
               </router-link>
             </b-nav-item>
             <b-nav-item>

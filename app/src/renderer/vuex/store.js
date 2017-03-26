@@ -5,7 +5,10 @@ import OAuthElectron from 'salesforce/oauth'
 import {configPath} from 'salesforce/config'
 import access from 'salesforce/access'
 import storage from 'ya-storage'
+import electron from 'electron'
+let app = electron.remote.app
 
+const SITES_PATH = `${app.getPath('documents')}/sjsu_survey/settings/sites`
 Vue.use(Vuex)
 
 let handleError = function (commit) {
@@ -45,13 +48,10 @@ let store = new Vuex.Store({
       userId: null,
       oauthCallbackURL: null
     },
-    sites:[],
-    downloadedSites:{
-
-    }
+    sites:{downloadDate:null, list:[]},
   },
   mutations: {
-    replaceSites(state, {sites}){
+    replaceSites(state, sites){
       state.sites = sites
     },
     clearAlert (state) {
@@ -83,15 +83,6 @@ let store = new Vuex.Store({
         }
       }
     },
-    startDownload(state, {id}){
-      let site = state.sites.find((site)=>site.id === id)
-      site.downloading = true
-    },
-    finishDownload(state, {id}){
-      let site = state.sites.find((site)=>site.id === id)
-      site.downloading = false
-      site.downloaded = new Date().toDateString()
-    }
   },
   actions: {
     loadConfig ({commit}) {
@@ -101,6 +92,18 @@ let store = new Vuex.Store({
     },
     saveConfig ({state, commit}) {
       return storage.set(configPath, state.auth).catch(handleError(commit))
+    },
+    loadSites({commit}){
+      storage.get(SITES_PATH).then(sites =>{
+        commit('replaceSites', sites)
+      }).catch(err=>{
+        if(err.message.indexOf('exist') < 0){
+          throw err;
+        }
+      }).catch(handleError(commit))
+    },
+    saveSites({state, commit}) {
+      return storage.set(SITES_PATH, state.sites).catch(handleError(commit))
     },
     getAuth ({commit, dispatch, state}) {
       return Promise.resolve(state.auth).then(function (auth) {
@@ -118,10 +121,6 @@ let store = new Vuex.Store({
         dispatch('saveConfig')
         return auth
       })
-    },
-    downloadSite({commit, dispatch, state}, {id}){
-      commit('startDownload', {id})
-      commit('finishDownload', {id})
     },
     getSites ({commit, dispatch, state}, {retry = true}) {
       return dispatch('getAuth').then(function (auth) {
@@ -148,7 +147,8 @@ let store = new Vuex.Store({
               downloaded:'',
             }
           })
-          commit('replaceSites', {sites})
+          commit('replaceSites', {downloadDate:Date.now(), list:sites})
+          dispatch('saveSites')
           return sites
         }).catch(handleError(commit))
       })
@@ -158,4 +158,5 @@ let store = new Vuex.Store({
 })
 
 store.dispatch('loadConfig')
+store.dispatch('loadSites')
 export default store
