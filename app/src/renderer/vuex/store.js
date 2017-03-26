@@ -49,8 +49,22 @@ let store = new Vuex.Store({
       oauthCallbackURL: null
     },
     sites:{downloadDate:null, list:[]},
+    newSession:{
+      selectedItem:null
+    },
+    sessions:[],
+    activeSession:-1
   },
   mutations: {
+    activateSession(state, id){
+      state.activeSession = id
+    },
+    addSession(state, session){
+      state.sessions.splice(0,0, session)
+    },
+    selectSite(state, site){
+      state.newSession.selectedItem = site
+    },
     replaceSites(state, sites){
       state.sites = sites
     },
@@ -85,6 +99,19 @@ let store = new Vuex.Store({
     },
   },
   actions: {
+    newSession({state, commit}){
+      let session = {
+        date:Date.now(),
+        currentRoom:'',
+        currentTeacher:'',
+        siteId:state.newSession.selectedItem.id,
+        siteName:state.newSession.selectedItem.name,
+        surveys:[]
+      }
+      commit('addSession', session)
+      commit('activateSession', session.date)
+      commit('selectSite', null)
+    },
     loadConfig ({commit}) {
       storage.get(configPath).then((config) => {
         commit('updateAuth', config)
@@ -142,9 +169,7 @@ let store = new Vuex.Store({
               id:record.Id,
               name:record.Name,
               owner:record.Owner?record.Owner.Name:'None',
-              type:record.Type,
-              downloading:false,
-              downloaded:'',
+              type:record.Type
             }
           })
           commit('replaceSites', {downloadDate:Date.now(), list:sites})
