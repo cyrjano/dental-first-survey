@@ -12,6 +12,12 @@ export default [
     meta: {title: 'Settings'}
   },
   {
+    path: '/surveys',
+    name: 'survey',
+    component:require('components/SurveyView'),
+    meta: {title: 'Survey'}
+  },
+  {
     path: '*',
     redirect: '/sessions'
   }

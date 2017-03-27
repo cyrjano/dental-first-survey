@@ -6,6 +6,7 @@ import access from 'salesforce/access'
 import storage from '../storage'
 import electron from 'electron'
 let app = electron.remote.app
+import {checkLevels} from '../checks'
 
 Vue.use(Vuex)
 
@@ -37,6 +38,7 @@ let getAccessToken = function (auth) {
 
 let store = new Vuex.Store({
   state: {
+    checkLevels:checkLevels,
     alert: {state: 'success', message: ''},
     auth: {
       appId: null,

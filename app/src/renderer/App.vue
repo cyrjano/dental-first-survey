@@ -11,7 +11,6 @@
           <span aria-hidden="true">&times;</span>
         </button>
         <octicon :name="icon" />{{alertMessage}}
-
       </b-alert>
     </div>
     <b-navbar type="inverse" variant="inverse" class="text-white navbar-toggleable-sm">
@@ -20,7 +19,7 @@
       <b-collapse isNav id="nav_collapse">
         <b-nav isNavBar>
             <b-nav-item>
-              <router-link class="text-white" to="/">
+              <router-link class="text-white" to="/surveys">
                 <octicon name="checklist"/><span class="p-2">Surveys</span>
               </router-link>
             </b-nav-item>

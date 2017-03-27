@@ -1,17 +1,23 @@
 <template>
   <div>
-    <canvas :width="width" :height="height">
+    <canvas class="decorated" :width="width" :height="height">
     </canvas>
+    <div :style="{paddingLeft:width -70 +'px'}">
+      <button class="btn btn-danger">Clear</button>
+    </div>
   </div>
 </template>
-
 <script>
   import Rx from 'rxjs/Rx'
   export default {
-    data(){
-      return{
-        width:500,
-        height:500
+    props:{
+      width:{
+        type:Number,
+        default:400
+      },
+      height:{
+        type:Number,
+        default:400
       }
     },
     mounted(){
@@ -31,6 +37,7 @@
       let touchMove = Rx.Observable.fromEvent(canvasElement,'touchmove').map(
         function(ev){
           ev.preventDefault()
+
           return {
             x:ev.touches[0].pageX - ev.touches[0].target.offsetLeft,
             y:ev.touches[0].pageY - ev.touches[0].target.offsetTop
@@ -68,9 +75,14 @@
     methods:{
       clear(){
         this.g.rect(0, 0, this.width, this.height)
-        this.g.fillStyle = "rgb(0,0,0)"
+        this.g.fillStyle = "rgb(255,255,255)"
         this.g.fill()
       }
     }
   }
 </script>
+<style>
+.decorated{
+  border:2px dashed rgb(200,200,200);
+}
+</style>
