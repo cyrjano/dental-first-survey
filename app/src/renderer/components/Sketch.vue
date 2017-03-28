@@ -1,9 +1,9 @@
 <template>
   <div>
-    <canvas class="decorated" :width="width" :height="height">
+    <canvas ref="canvas" class="decorated" :width="width" :height="height">
     </canvas>
     <div :style="{paddingLeft:width -70 +'px'}">
-      <button class="btn btn-danger">Clear</button>
+      <button class="btn btn-danger" @click="clear">Clear</button>
     </div>
   </div>
 </template>
@@ -18,13 +18,17 @@
       height:{
         type:Number,
         default:400
+      },
+      lines:{
+        type:Array,
+        default:[]
       }
     },
     mounted(){
-      let canvasElement = this.$el.getElementsByTagName('canvas')[0]
-      let g = canvasElement.getContext("2d");
+      let canvasElement = this.$refs.canvas
+      let g = canvasElement.getContext("2d")
       this.g = g
-      this.clear()
+      this.draw()
       let mouseMove = Rx.Observable.fromEvent(canvasElement, 'mousemove').map(
         function(ev){
           ev.preventDefault()
@@ -58,25 +62,52 @@
         ev.preventDefault()
         return ev
       })
-
+      start.flatMap(function(ev){
+        return move.scan((acc, ev)=>acc.concat([ev]), []).takeUntil(end).takeLast(1)
+      }).subscribe(events => {
+        this.$emit('line', events)
+      })
       start.flatMap(function(ev) {
-        return move.pairwise().takeUntil(end);
+        return move.pairwise().takeUntil(end)
       }).subscribe(function(pos) {
         g.beginPath();
         g.lineWidth = 1;
-
         g.strokeStyle = "rgb(255, 0, 0)";
-
         g.moveTo(pos[0].x, pos[0].y);
         g.lineTo(pos[1].x, pos[1].y);
         g.stroke();
       });
     },
+    watch:{
+      lines(value){
+        this.draw()
+      }
+    },
     methods:{
       clear(){
-        this.g.rect(0, 0, this.width, this.height)
-        this.g.fillStyle = "rgb(255,255,255)"
-        this.g.fill()
+        this.$emit('clear')
+      },
+      draw(){
+        let g = this.g
+        g.beginPath()
+        g.rect(0, 0, this.width, this.height)
+        g.fillStyle = "rgb(255,255,255)"
+        g.fill()
+        g.beginPath()
+        for(let line of this.lines){
+          if(line.length > 1){
+            g.lineWidth = 1;
+            g.strokeStyle = "rgb(255, 0, 0)"
+            for(let i = 0; i < line.length; i++){
+              if(i == 0) {
+                g.moveTo(line[i].x, line[i].y)
+              } else {
+                g.lineTo(line[i].x, line[i].y)
+              }
+            }
+          }
+        }
+        g.stroke()
       }
     }
   }

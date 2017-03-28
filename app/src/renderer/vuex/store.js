@@ -38,6 +38,19 @@ let getAccessToken = function (auth) {
 
 let store = new Vuex.Store({
   state: {
+    survey:{
+      grade:'',
+      room:'',
+      teacher:'',
+      firstName:'',
+      lastName:'',
+      studentId:'',
+      birthDate:'',
+      checkList:[],
+      babyTeeth:[],
+      permanentTeeth:[],
+      signature:[]
+    },
     checkLevels:checkLevels,
     alert: {state: 'success', message: ''},
     auth: {
@@ -56,6 +69,16 @@ let store = new Vuex.Store({
     activeSession:-1
   },
   mutations: {
+    addLine(state, lineMap){
+      for (var key in lineMap) {
+        if (lineMap.hasOwnProperty(key)) {
+          state.survey[key].push(lineMap[key])
+        }
+      }
+    },
+    updateSurvey(state, update){
+      Object.assign(state.survey, update)
+    },
     activateSession(state, id){
       state.activeSession = id
     },

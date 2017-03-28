@@ -18,6 +18,12 @@ export default [
     meta: {title: 'Survey'}
   },
   {
+    path: '/verify',
+    name: 'verify',
+    component:require('components/VerifyView'),
+    meta: {title: 'Verify'}
+  },
+  {
     path: '*',
     redirect: '/sessions'
   }
