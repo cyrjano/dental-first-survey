@@ -21,7 +21,18 @@
       },
       lines:{
         type:Array,
-        default:[]
+        default:function(){
+          return []
+        }
+      },
+      src:{
+        type:String,
+        default:''
+      }
+    },
+    data(){
+      return {
+        image:null
       }
     },
     mounted(){
@@ -29,6 +40,9 @@
       let g = canvasElement.getContext("2d")
       this.g = g
       this.draw()
+      if(this.src){
+        this.loadImage(this.src)
+      }
       let mouseMove = Rx.Observable.fromEvent(canvasElement, 'mousemove').map(
         function(ev){
           ev.preventDefault()
@@ -41,10 +55,16 @@
       let touchMove = Rx.Observable.fromEvent(canvasElement,'touchmove').map(
         function(ev){
           ev.preventDefault()
-
+          let target = ev.touches[0].target
+          let left = 0, top = 0;
+          while (target) {
+              left += target.offsetLeft;
+              top += target.offsetTop;
+              target = target.offsetParent;
+          }
           return {
-            x:ev.touches[0].pageX - ev.touches[0].target.offsetLeft,
-            y:ev.touches[0].pageY - ev.touches[0].target.offsetTop
+            x:ev.touches[0].pageX - left,
+            y:ev.touches[0].pageY - top
           }
         }
       )
@@ -80,10 +100,26 @@
     },
     watch:{
       lines(value){
+        console.log('draw line..')
         this.draw()
+      },
+      src(val){
+        this.loadImage(val)
       }
     },
     methods:{
+      loadImage(val){
+        console.log(`Prop value:${val}`)
+        this.image = null
+        if(val){
+          let img = new Image()
+          img.src = val
+          img.onload = () => {
+            this.image = img
+            this.draw()
+          }
+        }
+      },
       clear(){
         this.$emit('clear')
       },
@@ -93,6 +129,9 @@
         g.rect(0, 0, this.width, this.height)
         g.fillStyle = "rgb(255,255,255)"
         g.fill()
+        if(this.image){
+          g.drawImage(this.image, 0,0)
+        }
         g.beginPath()
         for(let line of this.lines){
           if(line.length > 1){

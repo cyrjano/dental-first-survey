@@ -3,7 +3,7 @@
     <div v-if='!hasActiveSession' class="inactive p-2 d-flex flex-grow">
       <h1>No Active Session</h1>
     </div>
-    <div v-if='hasActiveSession' class="p-4">
+    <div v-if='hasActiveSession' class="container p-4">
       <form>
         <legend>{{activeSession.siteName}}</legend>
         <div class="form-group row">
@@ -56,13 +56,13 @@
           </ol>
         </div>
         <div style="padding:20px">
-          <sketch :lines="babyTeeth" @line="addBabyTeethLine" @clear="clearBabyTeeth"></sketch>
+          <sketch :lines="babyTeeth" :src="babyTeethUrl" :width="230" :height="300" @line="addBabyTeethLine" @clear="clearBabyTeeth"></sketch>
         </div>
         <div style="padding:20px">
-          <sketch :lines="permanentTeeth" @line="addPermanentTeethLine" @clear="clearPermanentTeeth"></sketch>
+          <sketch :lines="permanentTeeth" :src="permanentTeethUrl" :width="230" :height="300" @line="addPermanentTeethLine" @clear="clearPermanentTeeth"></sketch>
         </div>
         <div class="p-2">
-          <button class="btn btn-primary">Verify</button>
+          <button class="btn btn-primary" @click.prevent="verify">Verify</button>
         </div>
       </form>
     </div>
@@ -94,8 +94,14 @@ export default {
     babyTeeth(){
       return this.$store.state.survey.babyTeeth
     },
+    babyTeethUrl(){
+      return this.$store.state.survey.babyTeethUrl
+    },
     permanentTeeth(){
       return this.$store.state.survey.permanentTeeth
+    },
+    permanentTeethUrl(){
+      return this.$store.state.survey.permanentTeethUrl
     },
     hasActiveSession(){
       return this.$store.state.activeSession >= 0
@@ -105,7 +111,7 @@ export default {
     },
     checkLevels(){
       return this.$store.state.checkLevels
-    }
+    },
   },
   methods:{
     addBabyTeethLine(ev){
@@ -120,6 +126,9 @@ export default {
     clearPermanentTeeth(){
       this.$store.commit('updateSurvey', {permanentTeeth:[]})
     },
+    verify(){
+      this.$router.push('/verify')
+    }
   },
   components:{
     sketch:Sketch

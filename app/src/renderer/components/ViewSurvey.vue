@@ -1,6 +1,8 @@
 <template>
-<div style="d-flex column">
-  <h1>Healthier Kids Foundation Santa Clara County</h1>
+<div class="m-4">
+  <div>
+  <h3 class="page-title">Healthier Kids Foundation Santa Clara County</h3>
+  </div>
   <div class="py-4">
     Your child received a free dental screening. This screening consists of
     visual exam performed by a licensed dental profesional./ Su ni&ntilde;o
@@ -9,9 +11,9 @@
     profesional licenciado en odontolog&iacute;a.
   </div>
   <div class="p-2">
-    <h5>{{schoolName}} Grade:{{survey.grade}} Room: {{survey.room}} {{survey.teacher}}</h5>
-    <h5>Child's Name/ Nombre del Ni&ntilde;o: {{survey.firstName}} {{survey.lastName}} {{survey.studentId}}</h5>
-    <h5>Date Of Birth/ Fecha de Nacimiento: {{survey.birthDate}}</h5>
+    <strong>{{schoolName}} Grade:{{survey.grade}} Room: {{survey.room}} {{survey.teacher}}</strong>
+    <strong>Child's Name/ Nombre del Ni&ntilde;o: {{survey.firstName}} {{survey.lastName}} {{survey.studentId}}</strong>
+    <strong>Date Of Birth/ Fecha de Nacimiento: {{survey.birthDate}}</strong>
   </div>
   <div class="p-1" v-for="checkLevel of checkLevels" v-show="showLevel(checkLevel)">
     <dl>
@@ -19,9 +21,14 @@
       <dd v-for="option of checkLevel.options" v-show="showOption(option.value)">{{option.letter}}. {{option.text}}</dd>
     </dl>
   </div>
+  <div>
+    <Drawing  :lines="survey.babyTeeth" :src="survey.babyTeethUrl" :width="230" :height="300"/>
+    <Drawing  :lines="survey.permanentTeeth" :src="survey.permanentTeethUrl" :width="230" :height="300"/>
+  </div>
 </div>
 </template>
 <script>
+import Drawing from './Drawing'
 export default{
   computed:{
     schoolName(){
@@ -48,6 +55,14 @@ export default{
     showOption(value){
       return this.survey.checkList.indexOf(value) >= 0
     }
+  },
+  components:{
+    Drawing
   }
 }
 </script>
+<style>
+.page-title{
+  text-align:center
+}
+</style>

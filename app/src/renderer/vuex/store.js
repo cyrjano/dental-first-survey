@@ -7,6 +7,8 @@ import storage from '../storage'
 import electron from 'electron'
 let app = electron.remote.app
 import {checkLevels} from '../checks'
+import babyTeethUrl from '../assets/primary_teeth.jpg'
+import permanentTeethUrl from '../assets/permanent_teeth.jpg'
 
 Vue.use(Vuex)
 
@@ -39,6 +41,8 @@ let getAccessToken = function (auth) {
 let store = new Vuex.Store({
   state: {
     survey:{
+      babyTeethUrl:babyTeethUrl,
+      permanentTeethUrl:permanentTeethUrl,
       grade:'',
       room:'',
       teacher:'',
