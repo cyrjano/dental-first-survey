@@ -1,4 +1,5 @@
 <template>
+  <layout>
     <div class="d-flex flex-column">
       <div class="start">
         <div :class="['dropdown', filter?'show':'']">
@@ -38,8 +39,10 @@
         </div>
       </div>
     </div>
+  </layout>
 </template>
 <script>
+  import Layout from './Layout'
   export default {
     data(){
       return {
@@ -91,6 +94,9 @@
       activateSession(item){
         this.$store.commit('activateSession', item.date)
       }
+    },
+    components:{
+      layout:Layout
     }
   }
 </script>

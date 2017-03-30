@@ -89,6 +89,20 @@ let store = new Vuex.Store({
     addSession(state, session){
       state.sessions.splice(0,0, session)
     },
+    addSurvey(state, survey){
+      let session = state.sessions.find(s => s.date == state.activeSession)
+      session.surveys.push(survey)
+      Object.assign(state.survey, {
+        firstName:'',
+        lastName:'',
+        studentId:'',
+        birthDate:'',
+        checkList:[],
+        babyTeeth:[],
+        permanentTeeth:[],
+        signature:[]
+      })
+    },
     selectSite(state, site){
       state.newSession.selectedItem = site
     },
@@ -123,14 +137,12 @@ let store = new Vuex.Store({
           state.auth[prop] = payload[prop] || state.auth[prop]
         }
       }
-    },
+    }
   },
   actions: {
     newSession({state, commit, dispatch}){
       let session = {
         date:Date.now(),
-        currentRoom:'',
-        currentTeacher:'',
         siteId:state.newSession.selectedItem.id,
         siteName:state.newSession.selectedItem.name,
         surveys:[]
@@ -144,11 +156,32 @@ let store = new Vuex.Store({
       const session = state.sessions.find(session=>session.date === id)
       return storage.saveSession(session).catch(handleError(commit))
     },
+    saveSurvey({state, commit}){
+      let survey = state.survey
+      let newSurvey = {
+        date:Date.now(),
+        sessionId:state.activeSession,
+        grade:survey.grade,
+        room:survey.room,
+        teacher:survey.teacher,
+        firstName:survey.firstName,
+        lastName:survey.lastName,
+        studentId:survey.studentId,
+        birthDate:survey.birthDate,
+        checkList:survey.checkList.slice(0),
+        babyTeeth:survey.babyTeeth.slice(0),
+        permanentTeeth:survey.permanentTeeth.slice(0),
+        signature:survey.signature.slice(0)
+      }
+      commit('addSurvey', newSurvey)
+      return storage.saveSurvey(newSurvey)
+    },
     loadSessions({commit}){
       storage.loadSessions().then(function(sessions){
-        sessions.sort((a,b)=> b.date - a.date)
-        sessions.map(session => commit('addSession', session))
-      })
+        sessions.map(function(session) {
+          commit('addSession', session)
+        })
+      }).catch(handleError(commit))
     },
     loadConfig ({commit}) {
       storage.loadConfig().then((config) => {

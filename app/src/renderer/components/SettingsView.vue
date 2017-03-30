@@ -1,15 +1,18 @@
 <template>
-  <div class="d-flex flex-column">
-    <div class="d-flex flex-row justify-content-end" style="min-height:40px">
-      <div v-if="show" class="flex-grow">
-        <span>Download Date:{{date}},</span>
-        <span>Number of Sites:{{numberSites}}</span>
+  <layout>
+    <div class="d-flex flex-column">
+      <div class="d-flex flex-row justify-content-end" style="min-height:40px">
+        <div v-if="show" class="flex-grow">
+          <span>Download Date:{{date}},</span>
+          <span>Number of Sites:{{numberSites}}</span>
+        </div>
+        <b-button @click="updateSites">Update Sites</b-button>
       </div>
-      <b-button @click="updateSites">Update Sites</b-button>
     </div>
-  </div>
+  </layout>
 </template>
 <script>
+import Layout from './Layout'
 export default {
   computed: {
     date (){
@@ -26,6 +29,9 @@ export default {
     updateSites () {
       this.$store.dispatch('getSites', {retry: true})
     }
+  },
+  components:{
+    layout:Layout
   }
 }
 </script>

@@ -8,6 +8,23 @@ const settingsPath = `${appPath}/settings`
 const configPath = `${settingsPath}/oauth`
 const sitesPath = `${settingsPath}/sites`
 const sessionsPath =`${appPath}/sessions`
+const surveysPath = `${appPath}/surveys`
+
+function getFiles(path){
+  mkdirp.sync(path)
+  return new Promise(function(resolve, reject){
+    console.log(`Reading files from path:${path}`)
+    fs.readdir(path, function(err, files){
+      if(err){
+        reject(err)
+      } else {
+        var files = files.filter(file => file.endsWith('.json'))
+        console.log(`List of files@${path}`)
+        resolve(files)
+      }
+    })
+  })
+}
 
 export default {
   loadConfig(){
@@ -32,23 +49,36 @@ export default {
     return ya.set(sitesPath, sites)
   },
   loadSessions(){
-    mkdirp.sync(sessionsPath)
-    let filePromises = new Promise(function(resolve, reject){
-      fs.readdir(sessionsPath, function(err, files){
-        if(err){
-          reject(err)
-        } else {
-          var sessionFiles = files.filter(file => file.endsWith('.json'))
-          resolve(sessionFiles)
-        }
-      });
-    })
-    console.log('Retrieving List of sessions')
-    return filePromises.then(function(sessionFiles){
-      const sessionPromises = sessionFiles.map(
-        sessionFile => ya.get(`${sessionsPath}/${sessionFile}`)
+    console.log('Retrieving list of sessions')
+    let sessionsPromise = getFiles(sessionsPath).then(function(sessionFiles){
+      console.log(`Received list of sessions ${sessionFiles}`)
+      const sessionPromises = sessionFiles.map(function(sessionFile){
+          return ya.get(`${sessionsPath}/${sessionFile}`)
+       }
       )
       return Promise.all(sessionPromises)
+    }).then(function(sessions){
+      console.log('Sorting session')
+      sessions.sort((a,b)=> b.date - a.date)
+      return sessions
+    })
+    let surveysPromise = getFiles(surveysPath).then(function(surveyFiles){
+      console.log(`Received list of surveys ${surveyFiles}`)
+      const surveyPromises = surveyFiles.map(function(surveyFile){
+          return  ya.get(`${surveysPath}/${surveyFile}`)
+        }
+      )
+      return Promise.all(surveyPromises)
+    })
+    return Promise.all([sessionsPromise, surveysPromise]).then(function(results){
+      console.log('Assigning surveys')
+      let sessions = results[0]
+      let surveys = results[1]
+      for(const survey of surveys){
+        let session = sessions.find(s=>survey.sessionId === s.date)
+        session.surveys.push(survey)
+      }
+      return sessions
     })
   },
   saveSession(session){
@@ -57,5 +87,12 @@ export default {
     }
     console.log(`Saving session ${new Date(session.date)}`)
     return ya.set(`${sessionsPath}/${session.date}`, session)
+  },
+  saveSurvey(survey){
+    if(!survey){
+      return Promise.reject(new Error('No survey received.'))
+    }
+    console.log(`Saving survey ${new Date(survey.date)}`)
+    return ya.set(`${surveysPath}/${survey.sessionId}.${survey.date}`, survey)
   }
 }
