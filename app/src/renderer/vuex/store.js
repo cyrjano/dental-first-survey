@@ -70,9 +70,13 @@ let store = new Vuex.Store({
       selectedItem:null
     },
     sessions:[],
-    activeSession:-1
+    activeSession:-1,
+    loaded:false
   },
   mutations: {
+    finishLoading(state){
+      state.loaded = true
+    },
     addLine(state, lineMap){
       for (var key in lineMap) {
         if (lineMap.hasOwnProperty(key)) {
@@ -181,6 +185,7 @@ let store = new Vuex.Store({
         sessions.map(function(session) {
           commit('addSession', session)
         })
+        commit('finishLoading')
       }).catch(handleError(commit))
     },
     loadConfig ({commit}) {

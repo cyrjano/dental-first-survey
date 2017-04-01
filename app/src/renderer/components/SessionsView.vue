@@ -22,8 +22,8 @@
         <div>
           <strong>Date:</strong>{{new Date(activeSession.date).toDateString()}}
         </div>
-        <bButton style="width:100px" class="btn-sm">
-          <octicon name="cloud-download"/>Export
+        <bButton style="width:100px" class="btn-sm" @click="exportSession">
+          <octicon name="cloud-download"/> Export
         </bButton>
       </div>
       <div v-show="sessions.length">
@@ -43,6 +43,10 @@
 </template>
 <script>
   import Layout from './Layout'
+  import electron from 'electron'
+  import fs from 'fs'
+  const BrowserWindow = electron.remote.BrowserWindow
+
   export default {
     data(){
       return {
@@ -93,6 +97,35 @@
       },
       activateSession(item){
         this.$store.commit('activateSession', item.date)
+      },
+      exportSession(){
+        const sessionId = this.$store.state.activeSession
+        const session = this.$store.state.sessions.find(s=>s.date === sessionId)
+        const surveyId = session.surveys[0].date
+        let routeInfo = this.$router.resolve({
+          name:'print',
+          params:{session:sessionId, survey:surveyId}
+        })
+        let win = new BrowserWindow()
+        const fullUrl = window.location.origin+routeInfo.href
+        win.loadURL(fullUrl)
+        win.show()
+        win.on('page-title-updated', function(event, title){
+          let titleParts = title.split(':')
+          if(titleParts[0]==='print'){
+            const surveyId = parseInt(titleParts[1])
+            win.webContents.printToPDF({}, function(err, data){
+              if(err){
+                console.log(err)
+                return
+              }
+              fs.writeFile('C:\\Users\\Alejandro\\Documents\\sjsu_survey\\print.pdf', data, (error) => {
+                if (error) throw error
+                console.log('Write PDF successfully.')
+              })
+            })
+          }
+        })
       }
     },
     components:{

@@ -24,6 +24,12 @@ export default [
     meta: {title: 'Verify'}
   },
   {
+    path:'/print/:session/survey/:survey',
+    name:'print',
+    component:require('components/PrintView'),
+    meta:{title:'Print'}
+  },
+  {
     path: '*',
     redirect: '/sessions'
   }

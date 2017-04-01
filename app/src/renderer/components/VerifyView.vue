@@ -1,7 +1,7 @@
 <template>
   <layout>
     <div class="p-4">
-      <ViewSurvey></ViewSurvey>
+      <ViewSurvey  :site-name:"siteName" :show-signature="false" :survey="survey"></ViewSurvey>
       <div>
         <Sketch :width="300" :height="140" :lines="signatureLines" @line="addSignatureLine" @clear="clearSignature"></Sketch>
       </div>
@@ -21,7 +21,15 @@ export default {
   computed:{
     signatureLines(){
       return this.$store.state.survey.signature
-    }
+    },
+    survey(){
+      return this.$store.state.survey
+    },
+    siteName(){
+      return this.$store.state.sessions.find(
+        session=>session.date == this.$store.state.activeSession
+      ).siteName
+    },
   },
   methods:{
     addSignatureLine(ev){
