@@ -10,15 +10,22 @@
             <a v-for="item of siteOptions" class="dropdown-item" @click="selectSite(item)" href="#">{{item.name}}</a>
           </div>
         </div>
+        <div v-show="selectedSite">
+          <input type="file" ref="rosterFile" @change="selectFile"></input>
+        </div>
         <div class="p-2" v-show="selectedSite">
-          <strong>Selected Site:</strong> {{selectedSite}}
+          <strong>Selected Site:</strong> {{selectedSite}}  <span class="badge badge-warning">{{selectedFile.length}}</span>
         </div>
         <bButton :disabled="siteSelected" class="btn-sm" @click="newSession">
           <octicon name="mortar-board"/>New Session
         </bButton>
       </div>
       <div class="active-session" v-show="activeSession.siteName">
-        <h4>{{activeSession.siteName}} <span class="badge badge-primary">{{activeSession.surveys.length}}</span></h4>
+        <h4>
+          {{activeSession.siteName}}
+          <span class="badge badge-primary">{{activeSession.surveys.length}}</span>
+          <span class="badge badge-warning">{{activeSession.records.length}}</span>
+        </h4>
         <div>
           <strong>Date:</strong>{{new Date(activeSession.date).toDateString()}}
         </div>
@@ -33,7 +40,9 @@
             {{(activeSession.date === item.date)?'Active':'Activate'}}
           </bButton>
           <span>
-            {{item.siteName}} <span class="badge badge-primary">{{item.surveys.length}}</span>
+            {{item.siteName}}
+            <span class="badge badge-primary">{{item.surveys.length}}</span>
+            <span class="badge badge-warning">{{item.records.length}}</span>
           </span>
           ({{new Date(item.date).toDateString()}})
         </div>
@@ -50,11 +59,13 @@
   export default {
     data(){
       return {
-        filter:"",
-        selectedSchool:""
+        filter:""
       }
     },
     computed:{
+      selectedFile(){
+        return this.$store.state.newSession.selectedFile
+      },
       siteOptions(){
         var filteredList = this.$store.state.sites.list.filter(
           item=>item.name.toLowerCase().indexOf(this.filter.toLowerCase()) >= 0
@@ -80,6 +91,7 @@
         return {
           siteName:'',
           surveys:[],
+          records:[],
           date:-1
         }
       },
@@ -88,6 +100,12 @@
       }
     },
     methods:{
+      selectFile(ev){
+        if(ev.target.files.length === 1){
+            this.$store.dispatch('selectFile', ev.target.files[0])
+        }
+        this.$refs.rosterFile.value =''
+      },
       selectSite(item){
         this.filter = ''
         this.$store.commit('selectSite', item)

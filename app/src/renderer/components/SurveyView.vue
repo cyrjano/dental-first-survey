@@ -8,6 +8,19 @@
         <form>
           <legend>{{activeSession.siteName}}</legend>
           <div class="form-group row">
+            <label v-show="!canSearch" for="studentIdInput" class="col-1 col-form-label">ID:</label>
+            <div  v-show="!canSearch" class="col-11">
+              <input class="form-control" v-model="studentId" type="text" id="studentIdInput"/>
+            </div>
+            <label v-show="canSearch" for="studentIdSearch" class="col-1 col-form-label">ID:</label>
+            <div v-show="canSearch" class="input-group mb-2 mr-sm-2 mb-sm-0 col-10">
+              <input type="text" v-model="studentId" class="form-control" id="studentIdSearch">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" @click="search" type="button"><octicon name="search"/></button>
+              </span>
+            </div>
+          </div>
+          <div class="form-group row">
             <label for="gradeInput" class="col-1 col-form-label">Grade:</label>
             <div class="col-5">
               <input class="form-control" v-model="grade" type="text" id="gradeInput"/>
@@ -34,10 +47,6 @@
             </div>
           </div>
           <div class="form-group row">
-            <label for="studentIdInput" class="col-1 col-form-label">ID:</label>
-            <div class="col-5">
-              <input class="form-control" v-model="studentId" type="text" id="studentIdInput"/>
-            </div>
             <label for="birthDateInput" class="col-1 col-form-label">DoB:</label>
             <div class="col-5">
               <input class="form-control" v-model="birthDate" type="date" id="birthDateInput"/>
@@ -73,6 +82,7 @@
 <script>
 import Sketch from './Sketch'
 import Layout from './Layout'
+import Octicon from './Octicon'
 
 function property(propertyName){
   return {
@@ -94,6 +104,9 @@ export default {
     studentId:property('studentId'),
     birthDate:property('birthDate'),
     checkList:property('checkList'),
+    canSearch(){
+      return this.activeSession.records.length > 0
+    },
     babyTeeth(){
       return this.$store.state.survey.babyTeeth
     },
@@ -117,6 +130,9 @@ export default {
     },
   },
   methods:{
+    search(ev){
+      this.$store.dispatch('searchId')
+    },
     addBabyTeethLine(ev){
       this.$store.commit('addLine', {babyTeeth:ev})
     },
@@ -135,7 +151,8 @@ export default {
   },
   components:{
     sketch:Sketch,
-    layout:Layout
+    layout:Layout,
+    octicon:Octicon
   }
 }
 </script>

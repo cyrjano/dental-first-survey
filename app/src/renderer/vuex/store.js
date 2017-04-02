@@ -4,8 +4,9 @@ import {remote} from 'electron'
 import OAuthElectron from 'salesforce/oauth'
 import access from 'salesforce/access'
 import storage from '../storage'
-import electron from 'electron'
-let app = electron.remote.app
+import papa from 'papaparse'
+let {app, dialog} = remote
+
 import {checkLevels} from '../checks'
 import babyTeethUrl from '../assets/primary_teeth.jpg'
 import permanentTeethUrl from '../assets/permanent_teeth.jpg'
@@ -67,7 +68,8 @@ let store = new Vuex.Store({
     },
     sites:{downloadDate:null, list:[]},
     newSession:{
-      selectedItem:null
+      selectedItem:null,
+      selectedFile:[]
     },
     sessions:[],
     activeSession:-1,
@@ -107,6 +109,9 @@ let store = new Vuex.Store({
         signature:[]
       })
     },
+    updateFile(state, file){
+      state.newSession.selectedFile = file
+    },
     selectSite(state, site){
       state.newSession.selectedItem = site
     },
@@ -144,16 +149,57 @@ let store = new Vuex.Store({
     }
   },
   actions: {
+    searchId({commit,state}){
+      const activeSession = state.sessions.find(s=>s.date===state.activeSession)
+      const record = activeSession.records.find(r=>r.studentId===state.survey.studentId)
+      if(!record){
+        commit('setAlert', {state: 'danger', message: 'Student id not found'})
+      } else {
+        let update = {}
+        for(const key in record){
+          if(['firstName', 'lastName','birthDate','teacher'].indexOf(key)>=0){
+            update[key]=record[key]
+          }
+        }
+        commit('updateSurvey', update)
+      }
+    },
+    selectFile({commit}, file){
+      return new Promise((resolve, reject)=>{
+        papa.parse(file, {
+          header:true,
+          skipEmptyLines:true,
+          complete: function(results){
+            resolve(results.data)
+          },
+          error:function(err){
+            reject(err)
+          }
+        })
+      }).then(function(results){
+          console.log(results)
+          commit('updateFile', results)
+      }).catch(handleError(commit))
+    },
+    async _exportData({state, commit, dispatch}){
+      const sessionId = state.activeSession
+      const files = dialog.ShowOpenDialog({
+        title:'Export Directory',
+        properties:['openDirectory', 'createDirectory']
+      })
+    },
     newSession({state, commit, dispatch}){
       let session = {
         date:Date.now(),
         siteId:state.newSession.selectedItem.id,
         siteName:state.newSession.selectedItem.name,
-        surveys:[]
+        surveys:[],
+        records:state.newSession.selectedFile.slice(0)
       }
       commit('addSession', session)
       commit('activateSession', session.date)
       commit('selectSite', null)
+      commit('updateFile', [])
       return dispatch('saveSession', {id:session.date})
     },
     saveSession({state, commit}, {id}){
@@ -204,51 +250,48 @@ let store = new Vuex.Store({
     saveSites({state, commit}) {
       return storage.saveSites(state.sites).catch(handleError(commit))
     },
-    getAuth ({commit, dispatch, state}) {
-      return Promise.resolve(state.auth).then(function (auth) {
-        if (auth.refreshToken) {
-          return auth
-        } else {
-          return login(auth).then(function (auth) {
-            commit('updateAuth', auth)
-            dispatch('saveConfig')
-            return auth
-          })
-        }
-      }).then(getAccessToken).then(function (auth) {
+    async getAuth({commit, dispatch, state}){
+      let auth = state.auth
+      if(!auth.refreshToken){
+        auth = await login(auth)
         commit('updateAuth', auth)
         dispatch('saveConfig')
-        return auth
-      })
+      }
+      auth = await getAccessToken(auth)
+      commit('updateAuth', auth)
+      dispatch('saveConfig')
+      return auth
     },
-    getSites ({commit, dispatch, state}, {retry = true}) {
-      return dispatch('getAuth').then(function (auth) {
-        return access.getSites().catch(function (error) {
-          if (retry &&
-            error.length &&
+    getSites({dispatch, commit}){
+      dispatch('_getSites').catch(handleError(commit))
+    },
+    async _getSites({commit, dispatch, state}) {
+      let auth = await dispatch('getAuth')
+      let response = null
+      try {
+        response = await access.getSites()
+      } catch (error) {
+        if (error.length &&
             error[0].errorCode &&
-            error[0].errorCode == 'INVALID_SESSION_ID') {
-            commit('clearAuthParams', ['accessToken'])
-            return dispatch('getSites', {retry: false})
-          }
-          if (error.length) {
-            throw error[0]
-          }
+            error[0].errorCode == 'INVALID_SESSION_ID'){
+          commit('clearAuthParams', ['accessToken'])
+          auth = await dispatch('getAuth')
+          response = await access.getSites()
+        } else {
           throw error
-        }).then(function(response){
-          let sites = response.records.map(function(record){
-            return {
-              id:record.Id,
-              name:record.Name,
-              owner:record.Owner?record.Owner.Name:'None',
-              type:record.Type
-            }
-          })
-          commit('replaceSites', {downloadDate:Date.now(), list:sites})
-          dispatch('saveSites')
-          return sites
-        }).catch(handleError(commit))
+        }
+      }
+      let sites = response.records.map(function(record){
+        return {
+          id:record.Id,
+          name:record.Name,
+          owner:record.Owner?record.Owner.Name:'None',
+          type:record.Type
+        }
       })
+      commit('replaceSites', {downloadDate:Date.now(), list:sites})
+      dispatch('saveSites')
+      return sites
     }
   },
   strict: process.env.NODE_ENV !== 'production'

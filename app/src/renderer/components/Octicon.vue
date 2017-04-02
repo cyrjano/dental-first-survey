@@ -10,7 +10,7 @@ export default {
   },
   computed: {
     icon () {
-      return octicons[this.name].toSVG({width: 21})
+      return octicons[this.name].toSVG({width: 16})
     }
   }
 }

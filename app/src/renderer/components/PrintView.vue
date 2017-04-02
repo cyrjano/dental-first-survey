@@ -6,8 +6,6 @@
 <script>
 import ViewSurvey from './ViewSurvey'
 export default {
-  data:{
-  },
   computed:{
     survey(){
       if(!this.$store.state.loaded){
