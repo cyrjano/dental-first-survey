@@ -114,7 +114,7 @@
         this.$store.dispatch('newSession')
       },
       activateSession(item){
-        this.$store.commit('activateSession', item.date)
+        this.$store.dispatch('activateSession', {id:item.date})
       },
       exportSession(){
         const sessionId = this.$store.state.activeSession

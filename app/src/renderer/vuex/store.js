@@ -13,6 +13,26 @@ import permanentTeethUrl from '../assets/permanent_teeth.jpg'
 
 Vue.use(Vuex)
 
+function cleanSurvey(){
+  return {
+    firstName:'',
+    lastName:'',
+    studentId:'',
+    birthDate:'',
+    checkList:[],
+    babyTeeth:[],
+    permanentTeeth:[],
+    signature:[]
+  }
+}
+function cleanFullSurvey(){
+  return Object.assign(cleanSurvey(), {
+    room:'',
+    teacher:'',
+    grade:''
+  })
+}
+
 let handleError = function (commit) {
   return function (error) {
     commit('setAlert', {state: 'danger', message: error.message})
@@ -98,16 +118,6 @@ let store = new Vuex.Store({
     addSurvey(state, survey){
       let session = state.sessions.find(s => s.date == state.activeSession)
       session.surveys.push(survey)
-      Object.assign(state.survey, {
-        firstName:'',
-        lastName:'',
-        studentId:'',
-        birthDate:'',
-        checkList:[],
-        babyTeeth:[],
-        permanentTeeth:[],
-        signature:[]
-      })
     },
     updateFile(state, file){
       state.newSession.selectedFile = file
@@ -197,10 +207,14 @@ let store = new Vuex.Store({
         records:state.newSession.selectedFile.slice(0)
       }
       commit('addSession', session)
-      commit('activateSession', session.date)
+      dispatch('activateSession', {id:session.date})
+      return dispatch('saveSession', {id:session.date})
+    },
+    activateSession({commit}, {id}){
+      commit('activateSession', id)
       commit('selectSite', null)
       commit('updateFile', [])
-      return dispatch('saveSession', {id:session.date})
+      commit('updateSurvey', cleanFullSurvey())
     },
     saveSession({state, commit}, {id}){
       const session = state.sessions.find(session=>session.date === id)
@@ -224,6 +238,7 @@ let store = new Vuex.Store({
         signature:survey.signature.slice(0)
       }
       commit('addSurvey', newSurvey)
+      commit('updateSurvey', cleanSurvey())
       return storage.saveSurvey(newSurvey)
     },
     loadSessions({commit}){

@@ -7,7 +7,7 @@
       <div v-if='hasActiveSession' class="container p-4">
         <form>
           <legend>{{activeSession.siteName}}</legend>
-          <div class="form-group row">
+          <div :class="['form-group','row', studentErrorClass]">
             <label v-show="!canSearch" for="studentIdInput" class="col-1 col-form-label">ID:</label>
             <div  v-show="!canSearch" class="col-11">
               <input class="form-control" v-model="studentId" type="text" id="studentIdInput"/>
@@ -19,6 +19,7 @@
                 <button class="btn btn-primary" @click="search" type="button"><octicon name="search"/></button>
               </span>
             </div>
+            <div class="form-control-feedback">{{validationError}}</div>
           </div>
           <div class="form-group row">
             <label for="gradeInput" class="col-1 col-form-label">Grade:</label>
@@ -72,7 +73,7 @@
             <sketch :lines="permanentTeeth" :src="permanentTeethUrl" :width="230" :height="300" @line="addPermanentTeethLine" @clear="clearPermanentTeeth"></sketch>
           </div>
           <div class="p-2">
-            <button class="btn btn-primary" @click.prevent="verify">Verify</button>
+            <button :disabled="!!validationError" class="btn btn-primary" @click.prevent="verify">Verify</button>
           </div>
         </form>
       </div>
@@ -96,6 +97,22 @@ function property(propertyName){
 }
 export default {
   computed:{
+    studentErrorClass(){
+      if(this.validationError){
+        return 'has-danger'
+      }
+      return ''
+    },
+    validationError(){
+      const studentId = this.$store.state.survey.studentId
+      if(!studentId){
+        return 'Student Id required'
+      }
+      if(this.activeSession.surveys.some(s=>s.studentId === studentId)){
+        return 'Student Id must be unique'
+      }
+      return ''
+    },
     grade:property('grade'),
     room:property('room'),
     teacher:property('teacher'),
