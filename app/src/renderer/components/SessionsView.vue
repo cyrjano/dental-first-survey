@@ -117,33 +117,12 @@
         this.$store.dispatch('activateSession', {id:item.date})
       },
       exportSession(){
-        const sessionId = this.$store.state.activeSession
-        const session = this.$store.state.sessions.find(s=>s.date === sessionId)
-        const surveyId = session.surveys[0].date
         let routeInfo = this.$router.resolve({
-          name:'print',
-          params:{session:sessionId, survey:surveyId}
+            name:'print',
+            params:{session:this.$store.state.activeSession}
         })
-        let win = new BrowserWindow()
-        const fullUrl = window.location.origin+routeInfo.href
-        win.loadURL(fullUrl)
-        win.show()
-        win.on('page-title-updated', function(event, title){
-          let titleParts = title.split(':')
-          if(titleParts[0]==='print'){
-            const surveyId = parseInt(titleParts[1])
-            win.webContents.printToPDF({}, function(err, data){
-              if(err){
-                console.log(err)
-                return
-              }
-              fs.writeFile('C:\\Users\\Alejandro\\Documents\\sjsu_survey\\print.pdf', data, (error) => {
-                if (error) throw error
-                console.log('Write PDF successfully.')
-              })
-            })
-          }
-        })
+        const sessionUrl = `${window.location.origin}${routeInfo.href}`
+        this.$store.dispatch('exportSession', {id:this.$store.state.activeSession, sessionUrl:sessionUrl})
       }
     },
     components:{

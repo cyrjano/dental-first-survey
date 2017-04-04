@@ -5,13 +5,88 @@ import OAuthElectron from 'salesforce/oauth'
 import access from 'salesforce/access'
 import storage from '../storage'
 import papa from 'papaparse'
-let {app, dialog} = remote
+let {app, dialog, BrowserWindow} = remote
 
 import {checkLevels} from '../checks'
 import babyTeethUrl from '../assets/primary_teeth.jpg'
 import permanentTeethUrl from '../assets/permanent_teeth.jpg'
 
 Vue.use(Vuex)
+function generatePDFs(exportPath, sessionUrl){
+  return new Promise(function(resolve,reject){
+    let win = new BrowserWindow({useContentSize:true,show:false})
+    win.loadURL(sessionUrl)
+    win.on('page-title-updated', function(event, title){
+      if(title==='finish'){
+        win.close()
+        win = null
+        resolve()
+      }
+      let titleParts = title.split(':')
+
+      if(titleParts[0]==='print'){
+        const surveyName = titleParts[1]
+        win.webContents.printToPDF({}, function(err, data){
+          if(err){
+            win.close()
+            win = null
+            reject(err)
+          }
+          storage.savePDF(exportPath, surveyName, data)
+          win.webContents.send('status', 'ready')
+        })
+      }
+    })
+  })
+}
+
+function getChildAge(survey, record){
+  if(survey.birthDate){
+    const ageSeconds = Date.now() - Date.parse(survey.birthDate)
+    console.log(ageSeconds)
+    const age = new Date(ageSeconds).getUTCFullYear() - 1970
+    return age
+  }
+  if (record && record.childsAge){
+    return record.childsAge
+  }
+  return null
+}
+
+function getOutputRecord(siteId, siteName, survey, record){
+  const needsFollowUp = survey.checkList.some(check=>check.startsWith('2') || check.startsWith('3'))
+
+  let output = {
+    'Student ID':survey.studentId,
+    'School Site':siteId,
+    'Company':siteName,
+    'First Name':survey.firstName,
+    'Last Name':survey.lastName,
+    'Teacher':survey.teacher,
+    'Date of Birth':survey.birthDate,
+    'Follow-up Required': needsFollowUp?'Yes':'No',
+    'Status': needsFollowUp?'Open - Outreach Required':'Closed - Passed screening',
+    'PDF Name': `${survey.studentId}.${new Date(survey.date).toISOString().split('T')[0]}.pdf`
+  }
+
+  const childsAge = getChildAge(survey, record)
+  if(childsAge){
+    output["Child's Age"] = childsAge
+  }
+  if(record && record.zipCode){
+    output['Zip Code'] = record.zipCode
+  }
+  if(record && record.gender){
+    output['Gender'] = record.gender
+  }
+  if(record && record.preferredLanguage){
+    output['Preferred Language'] = record.preferredLanguage
+  }
+  if(record && record.stateId){
+    output['State Identifier'] = record.stateId
+  }
+  return output
+}
 
 function cleanSurvey(){
   return {
@@ -191,13 +266,6 @@ let store = new Vuex.Store({
           commit('updateFile', results)
       }).catch(handleError(commit))
     },
-    async _exportData({state, commit, dispatch}){
-      const sessionId = state.activeSession
-      const files = dialog.ShowOpenDialog({
-        title:'Export Directory',
-        properties:['openDirectory', 'createDirectory']
-      })
-    },
     newSession({state, commit, dispatch}){
       let session = {
         date:Date.now(),
@@ -307,6 +375,22 @@ let store = new Vuex.Store({
       commit('replaceSites', {downloadDate:Date.now(), list:sites})
       dispatch('saveSites')
       return sites
+    },
+    exportSession({state, commit}, {id, sessionUrl}){
+      let selectedSession = state.sessions.find(s=>s.date == id)
+      const files = dialog.showOpenDialog({
+        title:'Export Directory',
+        properties:['openDirectory', 'createDirectory']
+      })
+      const exportPath = files[0]
+      const outputRecords = selectedSession.surveys.map(function(survey){
+        const record = selectedSession.records.find(r=>r.studentId == survey.studentId)
+        return getOutputRecord(selectedSession.siteId, selectedSession.siteName, survey, record)
+      })
+      console.log(outputRecords)
+      let csvPromise = storage.saveCSV(`${exportPath}/output.csv`, outputRecords)
+      let pdfPromise = generatePDFs(exportPath, sessionUrl)
+      return Promise.all([csvPromise, pdfPromise]).catch(handleError(commit))
     }
   },
   strict: process.env.NODE_ENV !== 'production'

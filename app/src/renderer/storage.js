@@ -2,6 +2,7 @@ import electron from 'electron'
 import fs from 'fs'
 import ya from 'ya-storage'
 import mkdirp from 'mkdirp'
+import papa from 'papaparse'
 let app = electron.remote.app
 const appPath = `${app.getPath('documents')}/sjsu_survey`
 const settingsPath = `${appPath}/settings`
@@ -94,5 +95,28 @@ export default {
     }
     console.log(`Saving survey ${new Date(survey.date)}`)
     return ya.set(`${surveysPath}/${survey.sessionId}.${survey.date}`, survey)
+  },
+  savePDF(path, name, contents){
+    const pdfPath = `${path}/pdfs`
+    mkdirp.sync(pdfPath)
+    return new Promise(function(resolve, reject){
+      fs.writeFile(`${pdfPath}/${name}`, contents, function(err){
+        if(err){
+          reject(err)
+        }
+        resolve()
+      })
+    })
+  },
+  saveCSV(path, records){
+    return new Promise(function(resolve, reject){
+      const contents = papa.unparse(records)
+      fs.writeFile(path, contents, function(err){
+        if(err){
+          reject(err)
+        }
+        resolve()
+      })
+    })
   }
 }

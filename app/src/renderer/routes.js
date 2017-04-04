@@ -24,7 +24,7 @@ export default [
     meta: {title: 'Verify'}
   },
   {
-    path:'/print/:session/survey/:survey',
+    path:'/print/:session',
     name:'print',
     component:require('components/PrintView'),
     meta:{title:'Print'}
