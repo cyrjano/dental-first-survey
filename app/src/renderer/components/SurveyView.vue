@@ -85,91 +85,91 @@ import Sketch from './Sketch'
 import Layout from './Layout'
 import Octicon from './Octicon'
 
-function property(propertyName){
+function property (propertyName) {
   return {
-    get(){
+    get () {
       return this.$store.state.survey[propertyName]
     },
-    set(value){
-      this.$store.commit('updateSurvey', {[propertyName]:value})
+    set (value) {
+      this.$store.commit('updateSurvey', {[propertyName]: value})
     }
   }
 }
 export default {
-  computed:{
-    studentErrorClass(){
-      if(this.validationError){
+  computed: {
+    studentErrorClass () {
+      if (this.validationError) {
         return 'has-danger'
       }
       return ''
     },
-    validationError(){
+    validationError () {
       const studentId = this.$store.state.survey.studentId
-      if(!studentId){
+      if (!studentId) {
         return 'Student Id required'
       }
-      if(this.activeSession.surveys.some(s=>s.studentId === studentId)){
+      if (this.activeSession.surveys.some(s => s.studentId === studentId)) {
         return 'Student Id must be unique'
       }
       return ''
     },
-    grade:property('grade'),
-    room:property('room'),
-    teacher:property('teacher'),
-    firstName:property('firstName'),
-    lastName:property('lastName'),
-    studentId:property('studentId'),
-    birthDate:property('birthDate'),
-    checkList:property('checkList'),
-    canSearch(){
+    grade: property('grade'),
+    room: property('room'),
+    teacher: property('teacher'),
+    firstName: property('firstName'),
+    lastName: property('lastName'),
+    studentId: property('studentId'),
+    birthDate: property('birthDate'),
+    checkList: property('checkList'),
+    canSearch () {
       return this.activeSession.records.length > 0
     },
-    babyTeeth(){
+    babyTeeth () {
       return this.$store.state.survey.babyTeeth
     },
-    babyTeethUrl(){
+    babyTeethUrl () {
       return this.$store.state.survey.babyTeethUrl
     },
-    permanentTeeth(){
+    permanentTeeth () {
       return this.$store.state.survey.permanentTeeth
     },
-    permanentTeethUrl(){
+    permanentTeethUrl () {
       return this.$store.state.survey.permanentTeethUrl
     },
-    hasActiveSession(){
+    hasActiveSession () {
       return this.$store.state.activeSession >= 0
     },
-    activeSession(){
-      return this.$store.state.sessions.find(session=>this.$store.state.activeSession==session.date)
+    activeSession () {
+      return this.$store.state.sessions.find(session => this.$store.state.activeSession == session.date)
     },
-    checkLevels(){
+    checkLevels () {
       return this.$store.state.checkLevels
-    },
+    }
   },
-  methods:{
-    search(ev){
+  methods: {
+    search (ev) {
       this.$store.dispatch('searchId')
     },
-    addBabyTeethLine(ev){
-      this.$store.commit('addLine', {babyTeeth:ev})
+    addBabyTeethLine (ev) {
+      this.$store.commit('addLine', {babyTeeth: ev})
     },
-    addPermanentTeethLine(ev){
-      this.$store.commit('addLine', {permanentTeeth:ev})
+    addPermanentTeethLine (ev) {
+      this.$store.commit('addLine', {permanentTeeth: ev})
     },
-    clearBabyTeeth(){
-      this.$store.commit('updateSurvey', {babyTeeth:[]})
+    clearBabyTeeth () {
+      this.$store.commit('updateSurvey', {babyTeeth: []})
     },
-    clearPermanentTeeth(){
-      this.$store.commit('updateSurvey', {permanentTeeth:[]})
+    clearPermanentTeeth () {
+      this.$store.commit('updateSurvey', {permanentTeeth: []})
     },
-    verify(){
+    verify () {
       this.$router.push('/verify')
     }
   },
-  components:{
-    sketch:Sketch,
-    layout:Layout,
-    octicon:Octicon
+  components: {
+    sketch: Sketch,
+    layout: Layout,
+    octicon: Octicon
   }
 }
 </script>

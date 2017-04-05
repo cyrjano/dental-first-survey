@@ -34,7 +34,7 @@
   <div v-show="showSignature">
     <Drawing class="decorated" :width="300" :height="140" :lines="survey.signature"/>
   </div>
-  <div class="date">
+  <div class="date" v-show="showSignature">
     {{formatDate(survey.date)}}
   </div>
 </div>
@@ -42,39 +42,39 @@
 <script>
 import Drawing from './Drawing'
 export default{
-  props:{
-    survey:{type:Object},
-    siteName:{type:String},
-    showSignature:{type:Boolean, default:false},
+  props: {
+    survey: {type: Object},
+    siteName: {type: String},
+    showSignature: {type: Boolean, default: false}
   },
-  computed:{
-    babyTeethUrl(){
+  computed: {
+    babyTeethUrl () {
       return this.$store.state.survey.babyTeethUrl
     },
-    permanentTeethUrl(){
+    permanentTeethUrl () {
       return this.$store.state.survey.permanentTeethUrl
     },
-    checkLevels(){
+    checkLevels () {
       return this.$store.state.checkLevels
     }
   },
-  methods:{
-    showLevel(checkLevel){
-      for(const option of checkLevel.options){
-        if(this.showOption(option.value)){
+  methods: {
+    showLevel (checkLevel) {
+      for (const option of checkLevel.options) {
+        if (this.showOption(option.value)) {
           return true
         }
       }
       return false
     },
-    showOption(value){
+    showOption (value) {
       return this.survey.checkList.indexOf(value) >= 0
     },
-    formatDate(value){
+    formatDate (value) {
       return new Date(value).toDateString()
     }
   },
-  components:{
+  components: {
     Drawing
   }
 }

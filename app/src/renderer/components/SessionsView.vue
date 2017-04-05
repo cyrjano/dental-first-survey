@@ -29,8 +29,9 @@
         <div>
           <strong>Date:</strong>{{new Date(activeSession.date).toDateString()}}
         </div>
-        <bButton style="width:100px" class="btn-sm" @click="exportSession">
-          <octicon name="cloud-download"/> Export
+        <bButton style="width:100px" class="btn-sm" :disabled="loading" @click="exportSession">
+          <span v-show="!loading"><octicon name="cloud-download"/> Export</span>
+          <spinner v-show="loading"></spinner>
         </bButton>
       </div>
       <div v-show="sessions.length">
@@ -52,81 +53,89 @@
 </template>
 <script>
   import Layout from './Layout'
+  import Spinner from './Spinner'
   import electron from 'electron'
   import fs from 'fs'
   const BrowserWindow = electron.remote.BrowserWindow
 
   export default {
-    data(){
+    data () {
       return {
-        filter:""
+        filter: '',
+        loading: false
       }
     },
-    computed:{
-      selectedFile(){
+    computed: {
+      selectedFile () {
         return this.$store.state.newSession.selectedFile
       },
-      siteOptions(){
+      siteOptions () {
         var filteredList = this.$store.state.sites.list.filter(
-          item=>item.name.toLowerCase().indexOf(this.filter.toLowerCase()) >= 0
+          item => item.name.toLowerCase().indexOf(this.filter.toLowerCase()) >= 0
         )
-        return filteredList.slice(0,10)
+        return filteredList.slice(0, 10)
       },
-      siteSelected(){
+      siteSelected () {
         return !this.$store.state.newSession.selectedItem
       },
-      selectedSite(){
-        if(this.$store.state.newSession.selectedItem){
+      selectedSite () {
+        if (this.$store.state.newSession.selectedItem) {
           return this.$store.state.newSession.selectedItem.name
-        }
-        else{
+        } else {
           return ''
         }
       },
-      activeSession(){
+      activeSession () {
         const activeDate = this.$store.state.activeSession
-        if(activeDate > 0){
-          return this.$store.state.sessions.find(s=>s.date === activeDate)
+        if (activeDate > 0) {
+          return this.$store.state.sessions.find(s => s.date === activeDate)
         }
         return {
-          siteName:'',
-          surveys:[],
-          records:[],
-          date:-1
+          siteName: '',
+          surveys: [],
+          records: [],
+          date: -1
         }
       },
-      sessions(){
+      sessions () {
         return this.$store.state.sessions
       }
     },
-    methods:{
-      selectFile(ev){
-        if(ev.target.files.length === 1){
-            this.$store.dispatch('selectFile', ev.target.files[0])
+    methods: {
+      selectFile (ev) {
+        if (ev.target.files.length === 1) {
+          this.$store.dispatch('selectFile', ev.target.files[0])
         }
-        this.$refs.rosterFile.value =''
+        this.$refs.rosterFile.value = ''
       },
-      selectSite(item){
+      selectSite (item) {
         this.filter = ''
         this.$store.commit('selectSite', item)
       },
-      newSession(){
+      newSession () {
         this.$store.dispatch('newSession')
       },
-      activateSession(item){
-        this.$store.dispatch('activateSession', {id:item.date})
+      activateSession (item) {
+        this.$store.dispatch('activateSession', {id: item.date})
       },
-      exportSession(){
+      exportSession () {
         let routeInfo = this.$router.resolve({
-            name:'print',
-            params:{session:this.$store.state.activeSession}
+          name: 'print',
+          params: {session: this.$store.state.activeSession}
         })
-        const sessionUrl = `${window.location.origin}${routeInfo.href}`
-        this.$store.dispatch('exportSession', {id:this.$store.state.activeSession, sessionUrl:sessionUrl})
+        this.loading = true
+        const sessionUrl = `${window.location.origin}${window.location.pathname}${routeInfo.href}`
+        this.$store.dispatch('exportSession',
+          {id: this.$store.state.activeSession, sessionUrl: sessionUrl}
+        ).then(() => {
+          this.loading = false
+          this.$store.commit('setAlert', {state: 'success', message: 'Finish exporting all files.'})
+        })
       }
     },
-    components:{
-      layout:Layout
+    components: {
+      layout: Layout,
+      spinner: Spinner
     }
   }
 </script>

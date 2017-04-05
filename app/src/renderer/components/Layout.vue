@@ -28,7 +28,7 @@
                 <octicon name="gear"/><span class="pl-1">Settings</span>
               </router-link>
             </b-nav-item>
-            <b-nav-item>
+            <b-nav-item v-if="false">
               <router-link class="text-white" to="/verify">
                 <octicon name="question"/><span class="pl-1">Help</span>
               </router-link>

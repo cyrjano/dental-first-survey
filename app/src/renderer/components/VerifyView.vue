@@ -18,39 +18,40 @@ import Sketch from './Sketch'
 import Layout from './Layout'
 
 export default {
-  computed:{
-    signatureLines(){
+  computed: {
+    signatureLines () {
       return this.$store.state.survey.signature
     },
-    survey(){
+    survey () {
       return this.$store.state.survey
     },
-    siteName(){
+    siteName () {
       return this.$store.state.sessions.find(
-        session=>session.date == this.$store.state.activeSession
+        session => session.date == this.$store.state.activeSession
       ).siteName
-    },
+    }
   },
-  methods:{
-    addSignatureLine(ev){
-      this.$store.commit('addLine', {signature:ev})
+  methods: {
+    addSignatureLine (ev) {
+      this.$store.commit('addLine', {signature: ev})
     },
-    clearSignature(){
-      this.$store.commit('updateSurvey', {signature:[]})
+    clearSignature () {
+      this.$store.commit('updateSurvey', {signature: []})
     },
-    accept(){
-      this.$store.dispatch('saveSurvey').then(function(){
+    accept () {
+      this.$store.dispatch('saveSurvey').then(function () {
         this.$router.push('/surveys')
+        this.$store.commit('setAlert', {state: 'success', message: `Survey Captured`})
       }.bind(this))
     },
-    edit(){
+    edit () {
       this.$router.push('/surveys')
     }
   },
-  components:{
+  components: {
     ViewSurvey,
     Sketch,
-    layout:Layout
+    layout: Layout
   }
 }
 </script>

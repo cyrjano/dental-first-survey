@@ -18,7 +18,7 @@ Vue.component('octicon', Octicon)
 Vue.config.debug = true
 
 const router = new Router({
-  scrollBehavior: () =>function(){ return {y:0}},
+  scrollBehavior: () => function () { return {y: 0} },
   routes
 })
 

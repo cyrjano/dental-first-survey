@@ -12,22 +12,22 @@ import babyTeethUrl from '../assets/primary_teeth.jpg'
 import permanentTeethUrl from '../assets/permanent_teeth.jpg'
 
 Vue.use(Vuex)
-function generatePDFs(exportPath, sessionUrl){
-  return new Promise(function(resolve,reject){
-    let win = new BrowserWindow({useContentSize:true,show:false})
+function generatePDFs (exportPath, sessionUrl) {
+  return new Promise(function (resolve, reject) {
+    let win = new BrowserWindow({useContentSize: true, show: false})
     win.loadURL(sessionUrl)
-    win.on('page-title-updated', function(event, title){
-      if(title==='finish'){
+    win.on('page-title-updated', function (event, title) {
+      if (title === 'finish') {
         win.close()
         win = null
         resolve()
       }
       let titleParts = title.split(':')
 
-      if(titleParts[0]==='print'){
+      if (titleParts[0] === 'print') {
         const surveyName = titleParts[1]
-        win.webContents.printToPDF({}, function(err, data){
-          if(err){
+        win.webContents.printToPDF({}, function (err, data) {
+          if (err) {
             win.close()
             win = null
             reject(err)
@@ -40,71 +40,71 @@ function generatePDFs(exportPath, sessionUrl){
   })
 }
 
-function getChildAge(survey, record){
-  if(survey.birthDate){
+function getChildAge (survey, record) {
+  if (survey.birthDate) {
     const ageSeconds = Date.now() - Date.parse(survey.birthDate)
     console.log(ageSeconds)
     const age = new Date(ageSeconds).getUTCFullYear() - 1970
     return age
   }
-  if (record && record.childsAge){
+  if (record && record.childsAge) {
     return record.childsAge
   }
   return null
 }
 
-function getOutputRecord(siteId, siteName, survey, record){
-  const needsFollowUp = survey.checkList.some(check=>check.startsWith('2') || check.startsWith('3'))
+function getOutputRecord (siteId, siteName, survey, record) {
+  const needsFollowUp = survey.checkList.some(check => check.startsWith('2') || check.startsWith('3'))
 
   let output = {
-    'Student ID':survey.studentId,
-    'School Site':siteId,
-    'Company':siteName,
-    'First Name':survey.firstName,
-    'Last Name':survey.lastName,
-    'Teacher':survey.teacher,
-    'Date of Birth':survey.birthDate,
-    'Follow-up Required': needsFollowUp?'Yes':'No',
-    'Status': needsFollowUp?'Open - Outreach Required':'Closed - Passed screening',
+    'Student ID': survey.studentId,
+    'School Site': siteId,
+    'Company': siteName,
+    'First Name': survey.firstName,
+    'Last Name': survey.lastName,
+    'Teacher': survey.teacher,
+    'Date of Birth': survey.birthDate,
+    'Follow-up Required': needsFollowUp ? 'Yes' : 'No',
+    'Status': needsFollowUp ? 'Open - Outreach Required' : 'Closed - Passed screening',
     'PDF Name': `${survey.studentId}.${new Date(survey.date).toISOString().split('T')[0]}.pdf`
   }
 
   const childsAge = getChildAge(survey, record)
-  if(childsAge){
+  if (childsAge) {
     output["Child's Age"] = childsAge
   }
-  if(record && record.zipCode){
+  if (record && record.zipCode) {
     output['Zip Code'] = record.zipCode
   }
-  if(record && record.gender){
+  if (record && record.gender) {
     output['Gender'] = record.gender
   }
-  if(record && record.preferredLanguage){
+  if (record && record.preferredLanguage) {
     output['Preferred Language'] = record.preferredLanguage
   }
-  if(record && record.stateId){
+  if (record && record.stateId) {
     output['State Identifier'] = record.stateId
   }
   return output
 }
 
-function cleanSurvey(){
+function cleanSurvey () {
   return {
-    firstName:'',
-    lastName:'',
-    studentId:'',
-    birthDate:'',
-    checkList:[],
-    babyTeeth:[],
-    permanentTeeth:[],
-    signature:[]
+    firstName: '',
+    lastName: '',
+    studentId: '',
+    birthDate: '',
+    checkList: [],
+    babyTeeth: [],
+    permanentTeeth: [],
+    signature: []
   }
 }
-function cleanFullSurvey(){
+function cleanFullSurvey () {
   return Object.assign(cleanSurvey(), {
-    room:'',
-    teacher:'',
-    grade:''
+    room: '',
+    teacher: '',
+    grade: ''
   })
 }
 
@@ -136,22 +136,22 @@ let getAccessToken = function (auth) {
 
 let store = new Vuex.Store({
   state: {
-    survey:{
-      babyTeethUrl:babyTeethUrl,
-      permanentTeethUrl:permanentTeethUrl,
-      grade:'',
-      room:'',
-      teacher:'',
-      firstName:'',
-      lastName:'',
-      studentId:'',
-      birthDate:'',
-      checkList:[],
-      babyTeeth:[],
-      permanentTeeth:[],
-      signature:[]
+    survey: {
+      babyTeethUrl: babyTeethUrl,
+      permanentTeethUrl: permanentTeethUrl,
+      grade: '',
+      room: '',
+      teacher: '',
+      firstName: '',
+      lastName: '',
+      studentId: '',
+      birthDate: '',
+      checkList: [],
+      babyTeeth: [],
+      permanentTeeth: [],
+      signature: []
     },
-    checkLevels:checkLevels,
+    checkLevels: checkLevels,
     alert: {state: 'success', message: ''},
     auth: {
       appId: null,
@@ -161,46 +161,46 @@ let store = new Vuex.Store({
       userId: null,
       oauthCallbackURL: null
     },
-    sites:{downloadDate:null, list:[]},
-    newSession:{
-      selectedItem:null,
-      selectedFile:[]
+    sites: {downloadDate: null, list: []},
+    newSession: {
+      selectedItem: null,
+      selectedFile: []
     },
-    sessions:[],
-    activeSession:-1,
-    loaded:false
+    sessions: [],
+    activeSession: -1,
+    loaded: false
   },
   mutations: {
-    finishLoading(state){
+    finishLoading (state) {
       state.loaded = true
     },
-    addLine(state, lineMap){
+    addLine (state, lineMap) {
       for (var key in lineMap) {
         if (lineMap.hasOwnProperty(key)) {
           state.survey[key].push(lineMap[key])
         }
       }
     },
-    updateSurvey(state, update){
+    updateSurvey (state, update) {
       Object.assign(state.survey, update)
     },
-    activateSession(state, id){
+    activateSession (state, id) {
       state.activeSession = id
     },
-    addSession(state, session){
-      state.sessions.splice(0,0, session)
+    addSession (state, session) {
+      state.sessions.splice(0, 0, session)
     },
-    addSurvey(state, survey){
+    addSurvey (state, survey) {
       let session = state.sessions.find(s => s.date == state.activeSession)
       session.surveys.push(survey)
     },
-    updateFile(state, file){
+    updateFile (state, file) {
       state.newSession.selectedFile = file
     },
-    selectSite(state, site){
+    selectSite (state, site) {
       state.newSession.selectedItem = site
     },
-    replaceSites(state, sites){
+    replaceSites (state, sites) {
       state.sites = sites
     },
     clearAlert (state) {
@@ -234,84 +234,84 @@ let store = new Vuex.Store({
     }
   },
   actions: {
-    searchId({commit,state}){
-      const activeSession = state.sessions.find(s=>s.date===state.activeSession)
-      const record = activeSession.records.find(r=>r.studentId===state.survey.studentId)
-      if(!record){
+    searchId ({commit, state}) {
+      const activeSession = state.sessions.find(s => s.date === state.activeSession)
+      const record = activeSession.records.find(r => r.studentId === state.survey.studentId)
+      if (!record) {
         commit('setAlert', {state: 'danger', message: 'Student id not found'})
       } else {
         let update = {}
-        for(const key in record){
-          if(['firstName', 'lastName','birthDate','teacher'].indexOf(key)>=0){
-            update[key]=record[key]
+        for (const key in record) {
+          if (['firstName', 'lastName', 'birthDate', 'teacher'].indexOf(key) >= 0) {
+            update[key] = record[key]
           }
         }
         commit('updateSurvey', update)
       }
     },
-    selectFile({commit}, file){
-      return new Promise((resolve, reject)=>{
+    selectFile ({commit}, file) {
+      return new Promise((resolve, reject) => {
         papa.parse(file, {
-          header:true,
-          skipEmptyLines:true,
-          complete: function(results){
+          header: true,
+          skipEmptyLines: true,
+          complete: function (results) {
             resolve(results.data)
           },
-          error:function(err){
+          error: function (err) {
             reject(err)
           }
         })
-      }).then(function(results){
-          console.log(results)
-          commit('updateFile', results)
+      }).then(function (results) {
+        console.log(results)
+        commit('updateFile', results)
       }).catch(handleError(commit))
     },
-    newSession({state, commit, dispatch}){
+    newSession ({state, commit, dispatch}) {
       let session = {
-        date:Date.now(),
-        siteId:state.newSession.selectedItem.id,
-        siteName:state.newSession.selectedItem.name,
-        surveys:[],
-        records:state.newSession.selectedFile.slice(0)
+        date: Date.now(),
+        siteId: state.newSession.selectedItem.id,
+        siteName: state.newSession.selectedItem.name,
+        surveys: [],
+        records: state.newSession.selectedFile.slice(0)
       }
       commit('addSession', session)
-      dispatch('activateSession', {id:session.date})
-      return dispatch('saveSession', {id:session.date})
+      dispatch('activateSession', {id: session.date})
+      return dispatch('saveSession', {id: session.date})
     },
-    activateSession({commit}, {id}){
+    activateSession ({commit}, {id}) {
       commit('activateSession', id)
       commit('selectSite', null)
       commit('updateFile', [])
       commit('updateSurvey', cleanFullSurvey())
     },
-    saveSession({state, commit}, {id}){
-      const session = state.sessions.find(session=>session.date === id)
+    saveSession ({state, commit}, {id}) {
+      const session = state.sessions.find(session => session.date === id)
       return storage.saveSession(session).catch(handleError(commit))
     },
-    saveSurvey({state, commit}){
+    saveSurvey ({state, commit}) {
       let survey = state.survey
       let newSurvey = {
-        date:Date.now(),
-        sessionId:state.activeSession,
-        grade:survey.grade,
-        room:survey.room,
-        teacher:survey.teacher,
-        firstName:survey.firstName,
-        lastName:survey.lastName,
-        studentId:survey.studentId,
-        birthDate:survey.birthDate,
-        checkList:survey.checkList.slice(0),
-        babyTeeth:survey.babyTeeth.slice(0),
-        permanentTeeth:survey.permanentTeeth.slice(0),
-        signature:survey.signature.slice(0)
+        date: Date.now(),
+        sessionId: state.activeSession,
+        grade: survey.grade,
+        room: survey.room,
+        teacher: survey.teacher,
+        firstName: survey.firstName,
+        lastName: survey.lastName,
+        studentId: survey.studentId,
+        birthDate: survey.birthDate,
+        checkList: survey.checkList.slice(0),
+        babyTeeth: survey.babyTeeth.slice(0),
+        permanentTeeth: survey.permanentTeeth.slice(0),
+        signature: survey.signature.slice(0)
       }
       commit('addSurvey', newSurvey)
       commit('updateSurvey', cleanSurvey())
       return storage.saveSurvey(newSurvey)
     },
-    loadSessions({commit}){
-      storage.loadSessions().then(function(sessions){
-        sessions.map(function(session) {
+    loadSessions ({commit}) {
+      storage.loadSessions().then(function (sessions) {
+        sessions.map(function (session) {
           commit('addSession', session)
         })
         commit('finishLoading')
@@ -325,17 +325,17 @@ let store = new Vuex.Store({
     saveConfig ({state, commit}) {
       return storage.saveConfig(state.auth).catch(handleError(commit))
     },
-    loadSites({commit}){
-      storage.loadSites().then(sites =>{
+    loadSites ({commit}) {
+      storage.loadSites().then(sites => {
         commit('replaceSites', sites)
       }).catch(handleError(commit))
     },
-    saveSites({state, commit}) {
+    saveSites ({state, commit}) {
       return storage.saveSites(state.sites).catch(handleError(commit))
     },
-    async getAuth({commit, dispatch, state}){
+    async getAuth ({commit, dispatch, state}) {
       let auth = state.auth
-      if(!auth.refreshToken){
+      if (!auth.refreshToken) {
         auth = await login(auth)
         commit('updateAuth', auth)
         dispatch('saveConfig')
@@ -345,10 +345,10 @@ let store = new Vuex.Store({
       dispatch('saveConfig')
       return auth
     },
-    getSites({dispatch, commit}){
+    getSites ({dispatch, commit}) {
       dispatch('_getSites').catch(handleError(commit))
     },
-    async _getSites({commit, dispatch, state}) {
+    async _getSites ({commit, dispatch, state}) {
       let auth = await dispatch('getAuth')
       let response = null
       try {
@@ -356,7 +356,7 @@ let store = new Vuex.Store({
       } catch (error) {
         if (error.length &&
             error[0].errorCode &&
-            error[0].errorCode == 'INVALID_SESSION_ID'){
+            error[0].errorCode == 'INVALID_SESSION_ID') {
           commit('clearAuthParams', ['accessToken'])
           auth = await dispatch('getAuth')
           response = await access.getSites()
@@ -364,27 +364,27 @@ let store = new Vuex.Store({
           throw error
         }
       }
-      let sites = response.records.map(function(record){
+      let sites = response.records.map(function (record) {
         return {
-          id:record.Id,
-          name:record.Name,
-          owner:record.Owner?record.Owner.Name:'None',
-          type:record.Type
+          id: record.Id,
+          name: record.Name,
+          owner: record.Owner ? record.Owner.Name : 'None',
+          type: record.Type
         }
       })
-      commit('replaceSites', {downloadDate:Date.now(), list:sites})
+      commit('replaceSites', {downloadDate: Date.now(), list: sites})
       dispatch('saveSites')
       return sites
     },
-    exportSession({state, commit}, {id, sessionUrl}){
-      let selectedSession = state.sessions.find(s=>s.date == id)
+    exportSession ({state, commit}, {id, sessionUrl}) {
+      let selectedSession = state.sessions.find(s => s.date == id)
       const files = dialog.showOpenDialog({
-        title:'Export Directory',
-        properties:['openDirectory', 'createDirectory']
+        title: 'Export Directory',
+        properties: ['openDirectory', 'createDirectory']
       })
       const exportPath = files[0]
-      const outputRecords = selectedSession.surveys.map(function(survey){
-        const record = selectedSession.records.find(r=>r.studentId == survey.studentId)
+      const outputRecords = selectedSession.surveys.map(function (survey) {
+        const record = selectedSession.records.find(r => r.studentId == survey.studentId)
         return getOutputRecord(selectedSession.siteId, selectedSession.siteName, survey, record)
       })
       console.log(outputRecords)
