@@ -68,7 +68,7 @@ export default {
       return Promise.all(sessionPromises)
     }).then(function (sessions) {
       console.log('Sorting session')
-      sessions.sort((a, b) => b.date - a.date)
+      sessions.sort((a, b) => a.date - b.date)
       return sessions
     })
     let surveysPromise = getFiles(surveysPath).then(function (surveyFiles) {

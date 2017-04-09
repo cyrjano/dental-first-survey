@@ -54,19 +54,24 @@ function getChildAge (survey, record) {
 }
 
 function getOutputRecord (siteId, siteName, survey, record) {
-  const needsFollowUp = survey.checkList.some(check => check.startsWith('2') || check.startsWith('3'))
+  let prioritySet  = new Set(survey.checkList.map(c=>parseInt(c[0])))
+  const needsFollowUp = prioritySet.has(1) || prioritySet.has(2)
 
   let output = {
+    'Lead type':'Dental First',
     'Student ID': survey.studentId,
-    'School Site': siteId,
-    'Company': siteName,
+    'School Site:Account ID': siteId,
+    'School Site:Account Name': siteName,
     'First Name': survey.firstName,
     'Last Name': survey.lastName,
     'Teacher': survey.teacher,
     'Date of Birth': survey.birthDate,
+    'Priority':[...prioritySet].sort().join(','),
     'Follow-up Required': needsFollowUp ? 'Yes' : 'No',
     'Status': needsFollowUp ? 'Open - Outreach Required' : 'Closed - Passed screening',
-    'PDF Name': `${survey.studentId}.${new Date(survey.date).toISOString().split('T')[0]}.pdf`
+    'PDF Name': `${survey.studentId}.${new Date(survey.date).toISOString().split('T')[0]}.pdf`,
+    'Screening Outreach':'',
+    'Date Child Screened':new Date(survey.date).toISOString().split('T')[0]
   }
 
   const childsAge = getChildAge(survey, record)
@@ -377,20 +382,26 @@ let store = new Vuex.Store({
       return sites
     },
     exportSession ({state, commit}, {id, sessionUrl}) {
-      let selectedSession = state.sessions.find(s => s.date == id)
-      const files = dialog.showOpenDialog({
-        title: 'Export Directory',
-        properties: ['openDirectory', 'createDirectory']
-      })
-      const exportPath = files[0]
-      const outputRecords = selectedSession.surveys.map(function (survey) {
-        const record = selectedSession.records.find(r => r.studentId == survey.studentId)
-        return getOutputRecord(selectedSession.siteId, selectedSession.siteName, survey, record)
-      })
-      console.log(outputRecords)
-      let csvPromise = storage.saveCSV(`${exportPath}/output.csv`, outputRecords)
-      let pdfPromise = generatePDFs(exportPath, sessionUrl)
-      return Promise.all([csvPromise, pdfPromise]).catch(handleError(commit))
+      try{
+        let selectedSession = state.sessions.find(s => s.date == id)
+        const files = dialog.showOpenDialog({
+          title: 'Export Directory',
+          properties: ['openDirectory', 'createDirectory']
+        })
+        if(!files){
+          return Promise.reject(new Error('User canceled.'))
+        }
+        const exportPath = files[0]
+        const outputRecords = selectedSession.surveys.map(function (survey) {
+          const record = selectedSession.records.find(r => r.studentId == survey.studentId)
+          return getOutputRecord(selectedSession.siteId, selectedSession.siteName, survey, record)
+        })
+        let csvPromise = storage.saveCSV(`${exportPath}/output.csv`, outputRecords)
+        let pdfPromise = generatePDFs(exportPath, sessionUrl)
+        return Promise.all([csvPromise, pdfPromise])
+      } catch(error){
+        return Promise.reject(error)
+      }
     }
   },
   strict: process.env.NODE_ENV !== 'production'

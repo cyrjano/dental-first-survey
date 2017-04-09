@@ -11,11 +11,17 @@
           <spinner v-show="loading"></spinner>
         </b-button>
       </div>
+      <div class="d-flex flex-row justify-content-start" style="min-height:40px">
+        <b-button @click="toggleTools">
+          Toggle Dev Tools
+        </b-button>
+      </div>
     </div>
   </layout>
 </template>
 <script>
 import Layout from './Layout'
+import {remote} from 'electron'
 import Spinner from './Spinner'
 
 export default {
@@ -42,6 +48,9 @@ export default {
         this.loading = false
         this.$store.commit('setAlert', {state: 'success', message: 'Sites Loaded...'})
       })
+    },
+    toggleTools(){
+      remote.getCurrentWindow().toggleDevTools()
     }
   },
   components: {

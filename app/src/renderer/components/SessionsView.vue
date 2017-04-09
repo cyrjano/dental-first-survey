@@ -130,6 +130,9 @@
         ).then(() => {
           this.loading = false
           this.$store.commit('setAlert', {state: 'success', message: 'Finish exporting all files.'})
+        }).catch(error=>{
+          this.loading = false
+          this.$store.commit('setAlert', {state: 'danger', message: error.message})
         })
       }
     },
