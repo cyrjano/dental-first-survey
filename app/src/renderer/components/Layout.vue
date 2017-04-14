@@ -15,7 +15,7 @@
     </div>
     <b-navbar type="inverse" variant="inverse" class="text-white navbar-toggleable-sm">
       <b-nav-toggle target="nav_collapse"/>
-      <a href='#' class="navbar-brand">Dental First</a>
+      <a href='#' class="navbar-brand">DentalFirst</a>
       <b-collapse isNav id="nav_collapse">
         <b-nav isNavBar>
             <b-nav-item>

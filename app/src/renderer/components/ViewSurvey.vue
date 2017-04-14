@@ -1,43 +1,52 @@
 <template>
-<div class="m-4">
-  <div>
-  <h3 class="page-title">Healthier Kids Foundation Santa Clara County</h3>
-  </div>
-  <div class="py-4">
-    Your child received a free dental screening. This screening consists of
-    visual exam performed by a licensed dental profesional./ Su ni&ntilde;o
-    recibi&oacute; un examen de detecci&oacute;n dental gratuita. Este examen
-    de detecci&oacute;n consist&iacute;a en un examen visual realizado por un
-    profesional licenciado en odontolog&iacute;a.
-  </div>
-  <div class="p-1">
-    <div>
-      <strong>{{siteName}} Grade:{{survey.grade}} Room: {{survey.room}} {{survey.teacher}}</strong>
+  <div class="m-4">
+    <div class="page-title">
+      <img width="100px" src="../assets/logo.jpg">
+    </div>
+    <div class="student py-2">
+      Your child received a free dental screening. This screening consists of
+      visual exam performed by a licensed dental profesional./ Su ni&ntilde;o
+      recibi&oacute; un examen de detecci&oacute;n dental gratuita. Este examen
+      de detecci&oacute;n consist&iacute;a en un examen visual realizado por un
+      profesional licenciado en odontolog&iacute;a.
+    </div>
+    <div class="student p-1">
+      <div>
+        <em><strong>{{siteName}}</strong></em> <strong>Grade:</strong> {{survey.grade}} <strong>Room:</strong> {{survey.room}} {{survey.teacher}}
+      </div>
+      <div>
+        <strong>Child's Name/ Nombre del Ni&ntilde;o:</strong> {{survey.firstName}} {{survey.lastName}} {{survey.studentId}}
+      </div>
+      <div>
+        <strong>Date Of Birth/ Fecha de Nacimiento:</strong> {{survey.birthDate}}
+      </div>
+    </div>
+    <div class="student" v-for="checkLevel of checkLevels" v-show="showLevel(checkLevel)">
+      <dl>
+        <dt>{{checkLevel.index}}. {{checkLevel.title}}</dt>
+        <dd v-for="option of checkLevel.options" v-show="showOption(option.value)">{{option.letter}}. {{option.text}}</dd>
+      </dl>
+    </div>
+    <div v-show="survey.comment">
+      <strong>Comment/Commentario:</strong>
+      <blockquote class="blockquote" style="font-size:.9em">
+        <p class="mb-0 mt-0">{{survey.comment}}</p>
+      </blockquote>
     </div>
     <div>
-      <strong>Child's Name/ Nombre del Ni&ntilde;o: {{survey.firstName}} {{survey.lastName}} {{survey.studentId}}</strong>
+      <Drawing  :lines="survey.babyTeeth" :src="babyTeethUrl" :width="230" :height="300"/>
+      <Drawing  :lines="survey.permanentTeeth" :src="permanentTeethUrl" :width="230" :height="300"/>
     </div>
-    <div>
-      <strong>Date Of Birth/ Fecha de Nacimiento: {{survey.birthDate}}</strong>
+    <div v-show="showSignature">
+      <Drawing class="decorated" :width="300" :height="140" :lines="survey.signature"/>
+    </div>
+    <div class="date" v-show="showSignature">
+      {{formatDate(survey.date)}}
+    </div>
+    <div class="footer" v-show="showSignature">
+      Visit us at <a href="//www.hkidsf.org">www.hkidsf.org</a>
     </div>
   </div>
-  <div v-for="checkLevel of checkLevels" v-show="showLevel(checkLevel)">
-    <dl>
-      <dt>{{checkLevel.index}}. {{checkLevel.title}}</dt>
-      <dd v-for="option of checkLevel.options" v-show="showOption(option.value)">{{option.letter}}. {{option.text}}</dd>
-    </dl>
-  </div>
-  <div>
-    <Drawing  :lines="survey.babyTeeth" :src="babyTeethUrl" :width="230" :height="300"/>
-    <Drawing  :lines="survey.permanentTeeth" :src="permanentTeethUrl" :width="230" :height="300"/>
-  </div>
-  <div v-show="showSignature">
-    <Drawing class="decorated" :width="300" :height="140" :lines="survey.signature"/>
-  </div>
-  <div class="date" v-show="showSignature">
-    {{formatDate(survey.date)}}
-  </div>
-</div>
 </template>
 <script>
 import Drawing from './Drawing'
@@ -80,11 +89,18 @@ export default{
 }
 </script>
 <style>
+.student{
+  font-size:.8em
+}
 .page-title{
   text-align:center;
 }
 .date{
   font-size:12px;
   margin-left:200px;
+}
+.footer{
+  font-size:.7em;
+  color:rgb(150,150,150)
 }
 </style>

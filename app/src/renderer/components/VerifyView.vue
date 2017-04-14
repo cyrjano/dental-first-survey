@@ -42,7 +42,7 @@ export default {
     accept () {
       this.$store.dispatch('saveSurvey').then(function () {
         this.$router.push('/surveys')
-        this.$store.commit('setAlert', {state: 'success', message: `Survey Captured`})
+        this.$store.dispatch('setAlertWithTimeout', {state: 'success', message: `Survey Captured`})
       }.bind(this))
     },
     edit () {

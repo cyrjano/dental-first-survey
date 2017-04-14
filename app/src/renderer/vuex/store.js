@@ -58,7 +58,7 @@ function getOutputRecord (siteId, siteName, survey, record) {
   const needsFollowUp = prioritySet.has(1) || prioritySet.has(2)
 
   let output = {
-    'Lead type':'Dental First',
+    'Lead type':'DentalFirst',
     'Student ID': survey.studentId,
     'School Site:Account ID': siteId,
     'School Site:Account Name': siteName,
@@ -66,7 +66,7 @@ function getOutputRecord (siteId, siteName, survey, record) {
     'Last Name': survey.lastName,
     'Teacher': survey.teacher,
     'Date of Birth': survey.birthDate,
-    'Priority':[...prioritySet].sort().join(','),
+    'Priority':[...prioritySet].sort().reverse()[0],
     'Follow-up Required': needsFollowUp ? 'Yes' : 'No',
     'Status': needsFollowUp ? 'Open - Outreach Required' : 'Closed - Passed screening',
     'PDF Name': `${survey.studentId}.${new Date(survey.date).toISOString().split('T')[0]}.pdf`,
@@ -99,6 +99,7 @@ function cleanSurvey () {
     lastName: '',
     studentId: '',
     birthDate: '',
+    comment:'',
     checkList: [],
     babyTeeth: [],
     permanentTeeth: [],
@@ -149,6 +150,7 @@ let store = new Vuex.Store({
       teacher: '',
       firstName: '',
       lastName: '',
+      comment: '',
       studentId: '',
       birthDate: '',
       checkList: [],
@@ -303,6 +305,7 @@ let store = new Vuex.Store({
         teacher: survey.teacher,
         firstName: survey.firstName,
         lastName: survey.lastName,
+        comment: survey.comment,
         studentId: survey.studentId,
         birthDate: survey.birthDate,
         checkList: survey.checkList.slice(0),
@@ -311,7 +314,7 @@ let store = new Vuex.Store({
         signature: survey.signature.slice(0)
       }
       commit('addSurvey', newSurvey)
-      commit('updateSurvey', cleanSurvey())
+      commit('updateSurvey', cleanFullSurvey())
       return storage.saveSurvey(newSurvey)
     },
     loadSessions ({commit}) {
@@ -380,6 +383,12 @@ let store = new Vuex.Store({
       commit('replaceSites', {downloadDate: Date.now(), list: sites})
       dispatch('saveSites')
       return sites
+    },
+    setAlertWithTimeout({commit}, alertInfo){
+      commit('setAlert', alertInfo)
+      setTimeout(function(){
+        commit('clearAlert')
+      }, 3000)
     },
     exportSession ({state, commit}, {id, sessionUrl}) {
       try{

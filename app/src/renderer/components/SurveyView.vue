@@ -66,6 +66,10 @@
               </li>
             </ol>
           </div>
+          <div class="form-group">
+            <label for="comment">Comments:</label>
+            <textarea class="form-control" v-model="comment" rows="5" id="comment"></textarea>
+          </div>
           <div style="padding:20px">
             <sketch :lines="babyTeeth" :src="babyTeethUrl" :width="230" :height="300" @line="addBabyTeethLine" @clear="clearBabyTeeth"></sketch>
           </div>
@@ -121,6 +125,7 @@ export default {
     studentId: property('studentId'),
     birthDate: property('birthDate'),
     checkList: property('checkList'),
+    comment:property('comment'),
     canSearch () {
       return this.activeSession.records.length > 0
     },
