@@ -6,6 +6,12 @@
         <Sketch :width="300" :height="140" :lines="signatureLines" @line="addSignatureLine" @clear="clearSignature">
         </Sketch>
       </div>
+      <div class="form-group row">
+        <label for="teacherInput" class="col-2 col-form-label">Dentist Name:</label>
+        <div class="col-8">
+          <input class="form-control" v-model="dentist" type="text" id="teacherInput"/>
+        </div>
+      </div>
       <div>
         <button class="btn btn-primary" @click.prevent="accept">Accept</button>
         <button class="btn btn-default" @click.prevent="edit">Edit</button>
@@ -22,6 +28,14 @@ export default {
   computed: {
     signatureLines () {
       return this.$store.state.survey.signature
+    },
+    dentist:{
+      get(){
+        return this.$store.state.survey.dentist
+      },
+      set(value){
+        this.$store.commit('updateSurvey', {dentist: value})
+      }
     },
     survey () {
       return this.$store.state.survey

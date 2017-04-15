@@ -1,5 +1,5 @@
 <template>
-  <div class="m-4">
+  <div>
     <div class="page-title">
       <img width="100px" src="../assets/logo.jpg">
     </div>
@@ -27,11 +27,13 @@
         <dd v-for="option of checkLevel.options" v-show="showOption(option.value)">{{option.letter}}. {{option.text}}</dd>
       </dl>
     </div>
-    <div v-show="survey.comment">
-      <strong>Comment/Commentario:</strong>
-      <blockquote class="blockquote" style="font-size:.9em">
-        <p class="mb-0 mt-0">{{survey.comment}}</p>
-      </blockquote>
+    <div class="row" v-show="survey.comment">
+      <div class="col-8">
+        <strong>Comment/Commentario:</strong>
+        <blockquote class="blockquote" style="font-size:.9em">
+          <p class="mb-0 mt-0">{{survey.comment}}</p>
+        </blockquote>
+      </div>
     </div>
     <div>
       <Drawing  :lines="survey.babyTeeth" :src="babyTeethUrl" :width="230" :height="300"/>
@@ -40,8 +42,8 @@
     <div v-show="showSignature">
       <Drawing class="decorated" :width="300" :height="140" :lines="survey.signature"/>
     </div>
-    <div class="date" v-show="showSignature">
-      {{formatDate(survey.date)}}
+    <div class="subline row" v-show="showSignature">
+      <div class="col-4">{{survey.dentist}}</div> <div class="col-2">{{formatDate(survey.date)}}</div>
     </div>
     <div class="footer" v-show="showSignature">
       Visit us at <a href="//www.hkidsf.org">www.hkidsf.org</a>
@@ -95,9 +97,8 @@ export default{
 .page-title{
   text-align:center;
 }
-.date{
+.subline{
   font-size:12px;
-  margin-left:200px;
 }
 .footer{
   font-size:.7em;

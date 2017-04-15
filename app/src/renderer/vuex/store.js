@@ -55,7 +55,7 @@ function getChildAge (survey, record) {
 
 function getOutputRecord (siteId, siteName, survey, record) {
   let prioritySet  = new Set(survey.checkList.map(c=>parseInt(c[0])))
-  const needsFollowUp = prioritySet.has(1) || prioritySet.has(2)
+  const needsFollowUp = prioritySet.has(2) || prioritySet.has(3)
 
   let output = {
     'Lead type':'DentalFirst',
@@ -156,7 +156,8 @@ let store = new Vuex.Store({
       checkList: [],
       babyTeeth: [],
       permanentTeeth: [],
-      signature: []
+      signature: [],
+      dentist:''
     },
     checkLevels: checkLevels,
     alert: {state: 'success', message: ''},
@@ -290,6 +291,7 @@ let store = new Vuex.Store({
       commit('selectSite', null)
       commit('updateFile', [])
       commit('updateSurvey', cleanFullSurvey())
+      commit('updateSurvey', {dentist:''})
     },
     saveSession ({state, commit}, {id}) {
       const session = state.sessions.find(session => session.date === id)
@@ -311,7 +313,8 @@ let store = new Vuex.Store({
         checkList: survey.checkList.slice(0),
         babyTeeth: survey.babyTeeth.slice(0),
         permanentTeeth: survey.permanentTeeth.slice(0),
-        signature: survey.signature.slice(0)
+        signature: survey.signature.slice(0),
+        dentist:survey.dentist
       }
       commit('addSurvey', newSurvey)
       commit('updateSurvey', cleanFullSurvey())

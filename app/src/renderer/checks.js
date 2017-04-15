@@ -11,7 +11,7 @@ let checks = [
     }
   },
   {
-    title: 'Early Dental Care Needed/Cuidado Dental temprano es necesario',
+    title: 'Urgent Dental Care Needed/Cuidado Dental urgente es necesario',
     options: {
       A: 'Mild to moderate cavities (caries)/ Caries leve a moderado',
       B: 'Gum disease/Enfermedad de las encias',
@@ -22,7 +22,7 @@ let checks = [
     }
   },
   {
-    title: 'Urgent Care Needed/Se Necesita Atencion Urgente',
+    title: 'Emergency Care Needed/Se Necesita Atencion de Emergencia',
     options: {
       A: 'Infection/Infeccion',
       B: 'Pain/Dolor',
