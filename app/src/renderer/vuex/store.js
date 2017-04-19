@@ -71,7 +71,8 @@ function getOutputRecord (siteId, siteName, survey, record) {
     'Status': needsFollowUp ? 'Open - Outreach Required' : 'Closed - Passed screening',
     'PDF Name': `${survey.studentId}.${new Date(survey.date).toISOString().split('T')[0]}.pdf`,
     'Screening Outreach':'',
-    'Date Child Screened':new Date(survey.date).toISOString().split('T')[0]
+    'Date Child Screened':new Date(survey.date).toISOString().split('T')[0],
+    'Dentist Name':survey.dentist
   }
 
   const childsAge = getChildAge(survey, record)
