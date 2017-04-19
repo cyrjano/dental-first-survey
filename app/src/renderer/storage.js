@@ -104,8 +104,8 @@ export default {
     console.log(`Saving survey ${new Date(survey.date)}`)
     return ya.set(`${surveysPath}/${survey.sessionId}.${survey.date}`, survey)
   },
-  savePDF (path, name, contents) {
-    const pdfPath = `${path}/pdfs`
+  savePDF (path, followUp, name, contents) {
+    const pdfPath = `${path}/${(followUp)?'':'no'}followup/`
     mkdirp.sync(pdfPath)
     return new Promise(function (resolve, reject) {
       fs.writeFile(`${pdfPath}/${name}`, contents, function (err) {

@@ -60,7 +60,9 @@ export default {
       }
       this.$nextTick(function () {
         console.log(`Index: ${this.index}`)
-        document.title = `print:${this.survey.studentId}.${new Date(this.survey.date).toISOString().split('T')[0]}.pdf`
+        let prioritySet  = new Set(this.survey.checkList.map(c=>parseInt(c[0])))
+        const followUp = (prioritySet.has(2) || prioritySet.has(3))?'y':'n'
+        document.title = `print:${followUp}:${this.survey.studentId}.${new Date(this.survey.date).toISOString().split('T')[0]}.pdf`
       })
       return this.session.surveys[this.index]
     },

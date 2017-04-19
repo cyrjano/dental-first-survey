@@ -25,14 +25,15 @@ function generatePDFs (exportPath, sessionUrl) {
       let titleParts = title.split(':')
 
       if (titleParts[0] === 'print') {
-        const surveyName = titleParts[1]
+        const followUp = titleParts[1] =='y'
+        const surveyName = titleParts[2]
         win.webContents.printToPDF({}, function (err, data) {
           if (err) {
             win.close()
             win = null
             reject(err)
           }
-          storage.savePDF(exportPath, surveyName, data)
+          storage.savePDF(exportPath, followUp, surveyName, data)
           win.webContents.send('status', 'ready')
         })
       }
@@ -101,7 +102,7 @@ function cleanSurvey () {
     studentId: '',
     birthDate: '',
     comment:'',
-    checkList: [],
+    checkList: ['1/A','1/B'],
     babyTeeth: [],
     permanentTeeth: [],
     signature: []
@@ -251,7 +252,7 @@ let store = new Vuex.Store({
       } else {
         let update = {}
         for (const key in record) {
-          if (['firstName', 'lastName', 'birthDate', 'teacher'].indexOf(key) >= 0) {
+          if (['firstName', 'lastName', 'birthDate', 'teacher', 'grade', 'room'].indexOf(key) >= 0) {
             update[key] = record[key]
           }
         }

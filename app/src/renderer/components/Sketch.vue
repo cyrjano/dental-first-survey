@@ -3,7 +3,7 @@
     <canvas ref="canvas" class="decorated" :width="width" :height="height">
     </canvas>
     <div :style="{paddingLeft:width -70 +'px'}">
-      <button class="btn btn-danger" @click="clear">Clear</button>
+      <button class="btn btn-danger" @click.stop.prevent="clear">Clear</button>
     </div>
   </div>
 </template>
