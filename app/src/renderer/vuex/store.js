@@ -17,7 +17,7 @@ let surveys = {}
 Vue.use(Vuex)
 function generatePDFs (exportPath, sessionUrl) {
   return new Promise(function (resolve, reject) {
-    let win = new BrowserWindow({useContentSize: true, show: false})
+    let win = new BrowserWindow({useContentSize: true, show: true})
     win.loadURL(sessionUrl)
     win.on('page-title-updated', function (event, title) {
       if (title === 'finish') {

@@ -85,6 +85,9 @@ export default {
       let surveys = results[1]
       for (const survey of surveys) {
         let session = sessions.find(s => survey.sessionId === s.date)
+        if(!session.surveys){
+          session.surveys = []
+        }
         session.surveys.push(survey)
       }
       return sessions
