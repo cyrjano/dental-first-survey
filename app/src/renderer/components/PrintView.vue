@@ -10,8 +10,7 @@ export default {
     console.log('Mounting Printer')
     require('electron').ipcRenderer.on('status', (event, message) => {
       console.log(`status:${message}`)
-      console.log(`Surveys:${this.surveys.length}`)
-      if (this.index < this.surveys.length - 1) {
+      if (this.index < this.session.surveysLength - 1) {
         this.index = this.index + 1
         console.log(`index:${this.index}`)
       } else {
@@ -26,12 +25,6 @@ export default {
     }
   },
   computed: {
-    surveys () {
-      if (!this.$store.state.loaded) {
-        return null
-      }
-      return this.session.surveys
-    },
     session () {
       if (!this.$store.state.loaded) {
         return null
@@ -39,7 +32,6 @@ export default {
       let session = this.$store.state.sessions.find(
         session => session.date == parseInt(this.$route.params.session)
       )
-
       return session
     },
     survey () {
@@ -55,7 +47,8 @@ export default {
           checkList: [],
           babyTeeth: [],
           permanentTeeth: [],
-          signature: []
+          signature: [],
+          date:0
         }
       }
       this.$nextTick(function () {
@@ -64,7 +57,8 @@ export default {
         const followUp = (prioritySet.has(2) || prioritySet.has(3))?'y':'n'
         document.title = `print:${followUp}:${this.survey.studentId}.${new Date(this.survey.date).toISOString().split('T')[0]}.pdf`
       })
-      return this.session.surveys[this.index]
+      this.$store.commit('loadSurveyForPrint', {session:this.session.date, index:this.index})
+      return this.$store.state.survey
     },
     siteName () {
       if (!this.$store.state.loaded) {
