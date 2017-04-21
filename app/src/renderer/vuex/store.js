@@ -11,6 +11,9 @@ import {checkLevels} from '../checks'
 import babyTeethUrl from '../assets/primary_teeth.jpg'
 import permanentTeethUrl from '../assets/permanent_teeth.jpg'
 
+let rosters = {}
+let surveys = {}
+
 Vue.use(Vuex)
 function generatePDFs (exportPath, sessionUrl) {
   return new Promise(function (resolve, reject) {
@@ -102,10 +105,11 @@ function cleanSurvey () {
     studentId: '',
     birthDate: '',
     comment:'',
-    checkList: ['1/A','1/B'],
+    checkList: [],
     babyTeeth: [],
     permanentTeeth: [],
-    signature: []
+    signature: [],
+    date:0
   }
 }
 function cleanFullSurvey () {
@@ -144,6 +148,7 @@ let getAccessToken = function (auth) {
 
 let store = new Vuex.Store({
   state: {
+    unique:true,
     survey: {
       babyTeethUrl: babyTeethUrl,
       permanentTeethUrl: permanentTeethUrl,
@@ -159,7 +164,8 @@ let store = new Vuex.Store({
       babyTeeth: [],
       permanentTeeth: [],
       signature: [],
-      dentist:''
+      dentist:'',
+      date:0
     },
     checkLevels: checkLevels,
     alert: {state: 'success', message: ''},
@@ -192,7 +198,14 @@ let store = new Vuex.Store({
       }
     },
     updateSurvey (state, update) {
+      if(update.studentId && state.activeSession >= 0){
+        state.unique = !surveys[state.activeSession].some(s => s.studentId === update.studentId)
+      }
       Object.assign(state.survey, update)
+    },
+    loadSurveyForPrint(state, {session, index}){
+      console.log('Loading Survey')
+      Object.assign(state.survey, surveys[session][index])
     },
     activateSession (state, id) {
       state.activeSession = id
@@ -202,7 +215,8 @@ let store = new Vuex.Store({
     },
     addSurvey (state, survey) {
       let session = state.sessions.find(s => s.date == state.activeSession)
-      session.surveys.push(survey)
+      session.surveysLength += 1
+      surveys[state.activeSession].push(survey)
     },
     updateFile (state, file) {
       state.newSession.selectedFile = file
@@ -246,7 +260,7 @@ let store = new Vuex.Store({
   actions: {
     searchId ({commit, state}) {
       const activeSession = state.sessions.find(s => s.date === state.activeSession)
-      const record = activeSession.records.find(r => r.studentId === state.survey.studentId)
+      const record = rosters[state.activeSession].find(r => r.studentId === state.survey.studentId)
       if (!record) {
         commit('setAlert', {state: 'danger', message: 'Student id not found'})
       } else {
@@ -281,9 +295,12 @@ let store = new Vuex.Store({
         date: Date.now(),
         siteId: state.newSession.selectedItem.id,
         siteName: state.newSession.selectedItem.name,
-        surveys: [],
-        records: state.newSession.selectedFile.slice(0)
+        surveysLength: 0,
+        recordsLength: state.newSession.selectedFile.length
       }
+      rosters[session.date] = state.newSession.selectedFile.slice(0)
+      surveys[session.date] = []
+      commit('updateFile', [])
       commit('addSession', session)
       dispatch('activateSession', {id: session.date})
       return dispatch('saveSession', {id: session.date})
@@ -296,7 +313,8 @@ let store = new Vuex.Store({
       commit('updateSurvey', {dentist:''})
     },
     saveSession ({state, commit}, {id}) {
-      const session = state.sessions.find(session => session.date === id)
+      const session = Vue.util.extend({},state.sessions.find(session => session.date === id))
+      session.records = rosters[session.date]
       return storage.saveSession(session).catch(handleError(commit))
     },
     saveSurvey ({state, commit}) {
@@ -325,6 +343,12 @@ let store = new Vuex.Store({
     loadSessions ({commit}) {
       storage.loadSessions().then(function (sessions) {
         sessions.map(function (session) {
+          rosters[session.date] = session.records.slice(0)
+          surveys[session.date] = session.surveys.slice(0)
+          session.recordsLength = rosters[session.date].length
+          session.surveysLength = surveys[session.date].length
+          delete session.records
+          delete session.surveys
           commit('addSession', session)
         })
         commit('finishLoading')
@@ -406,8 +430,8 @@ let store = new Vuex.Store({
           return Promise.reject(new Error('User canceled.'))
         }
         const exportPath = files[0]
-        const outputRecords = selectedSession.surveys.map(function (survey) {
-          const record = selectedSession.records.find(r => r.studentId == survey.studentId)
+        const outputRecords = surveys[id].map(function (survey) {
+          const record = rosters[id].find(r => r.studentId == survey.studentId)
           return getOutputRecord(selectedSession.siteId, selectedSession.siteName, survey, record)
         })
         let csvPromise = storage.saveCSV(`${exportPath}/output.csv`, outputRecords)

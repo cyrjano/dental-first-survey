@@ -112,7 +112,7 @@ export default {
       if (!studentId) {
         return 'Student Id required'
       }
-      if (this.activeSession.surveys.some(s => s.studentId === studentId)) {
+      if (!this.$store.state.unique) {
         return 'Student Id must be unique'
       }
       return ''
@@ -127,7 +127,7 @@ export default {
     checkList: property('checkList'),
     comment:property('comment'),
     canSearch () {
-      return this.activeSession.records.length > 0
+      return this.activeSession.recordsLength > 0
     },
     babyTeeth () {
       return this.$store.state.survey.babyTeeth
