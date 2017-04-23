@@ -23,8 +23,10 @@
     </div>
     <div class="student" v-for="checkLevel of checkLevels" v-show="showLevel(checkLevel)">
       <dl>
-        <dt>{{checkLevel.index}}. {{checkLevel.title}}</dt>
-        <dd v-for="option of checkLevel.options" v-show="showOption(option.value)">{{option.letter}}. {{option.text}}</dd>
+        <dt>{{checkLevel.index}}. <span v-html="checkLevel.title"></span></dt>
+        <dd v-for="option of checkLevel.options" v-show="showOption(option.value)">
+          {{option.letter}}. <span v-html="option.text"></span>
+        </dd>
       </dl>
     </div>
     <div class="row" v-show="survey.comment">

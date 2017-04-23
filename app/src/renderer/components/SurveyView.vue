@@ -56,11 +56,11 @@
           <div class="form-group">
             <ol>
               <li v-for="checkLevel of checkLevels">
-                <h6>{{checkLevel.title}}</h6>
+                <h6><span v-html="checkLevel.title"></span></h6>
                 <div class="form-check" v-for="option of checkLevel.options">
                   <label class="form-check-label">
                     <input v-model="checkList" class="form-check-input" type="checkbox" :value="option.value">
-                    {{option.letter}}. {{option.text}}
+                    {{option.letter}}. <span v-html="option.text"></span>
                   </label>
                 </div>
               </li>
