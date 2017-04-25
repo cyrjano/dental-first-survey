@@ -1,7 +1,7 @@
 
 let checks = [
   {
-    title: 'Routine Dental Care Recomended/<em>Se recomienda Atencion Dental de Rutina</em>',
+    title: 'Routine Dental Care Recommended/<em>Se recomienda Atencion Dental de Rutina</em>',
     options: {
       A: 'Dental Cleaning recomended/<em>Se recomienda limpieza dental</em>',
       B: 'Screen for cavities between the teeth (interproximal caries)/<em>Se recomienda examinar por caries entre los dientes (inter proximal)</em>',
