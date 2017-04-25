@@ -4,8 +4,8 @@
       <img width="100px" src="../assets/logo.jpg">
     </div>
     <div class="student py-2">
-      Your child received a free dental screening. This screening consists of
-      visual exam performed by a licensed dental profesional./ Su ni&ntilde;o
+      Your child received a free dental screening. This screening consists of a
+      visual exam performed by a licensed dental professional./ Su ni&ntilde;o
       recibi&oacute; un examen de detecci&oacute;n dental gratuita. Este examen
       de detecci&oacute;n consist&iacute;a en un examen visual realizado por un
       profesional licenciado en odontolog&iacute;a.
