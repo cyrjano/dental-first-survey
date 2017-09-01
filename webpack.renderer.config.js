@@ -83,7 +83,7 @@ let rendererConfig = {
       $: "jquery",
       jQuery: "jquery",
       "window.jQuery": "jquery",
-      'Tether':'tether'
+      'Popper':'popper.js'
     }),
     new ExtractTextPlugin('styles.css'),
     new HtmlWebpackPlugin({

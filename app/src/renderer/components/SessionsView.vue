@@ -16,7 +16,7 @@
         <div class="p-2" v-show="selectedSite">
           <strong>Selected Site:</strong> {{selectedSite}}  <span class="badge badge-warning">{{selectedFile.length}}</span>
         </div>
-        <bButton :disabled="siteSelected" class="btn-sm" @click="newSession">
+        <bButton variant="primary" :disabled="siteSelected" class="btn-sm" @click="newSession">
           <octicon name="mortar-board"/>New Session
         </bButton>
       </div>
@@ -29,7 +29,7 @@
         <div>
           <strong>Date:</strong>{{new Date(activeSession.date).toDateString()}}
         </div>
-        <bButton style="width:100px" class="btn-sm" :disabled="loading" @click="exportSession">
+        <bButton variant="primary sm" style="width:100px" :disabled="loading" @click="exportSession">
           <span v-show="!loading"><octicon name="cloud-download"/> Export</span>
           <spinner v-show="loading"></spinner>
         </bButton>
@@ -37,7 +37,7 @@
       <div v-show="sessions.length">
         <h5>Stored Sessions</h5>
         <div v-for="item of sessions">
-          <bButton style="width:100px" @click="activateSession(item)" :class="[(activeSession.date === item.date)?'disabled':'',(activeSession.date === item.date)?'btn-secondary':'','btn-sm']">
+          <bButton variant="primary" style="width:100px" @click="activateSession(item)" :class="[(activeSession.date === item.date)?'disabled':'',(activeSession.date === item.date)?'btn-secondary':'','btn-sm']">
             {{(activeSession.date === item.date)?'Active':'Activate'}}
           </bButton>
           <span>
