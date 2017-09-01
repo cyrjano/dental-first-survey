@@ -49,7 +49,7 @@ export default {
         this.$store.commit('setAlert', {state: 'success', message: 'Sites Loaded...'})
       })
     },
-    toggleTools(){
+    toggleTools () {
       remote.getCurrentWindow().toggleDevTools()
     }
   },

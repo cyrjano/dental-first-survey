@@ -85,7 +85,7 @@ export default {
       let surveys = results[1]
       for (const survey of surveys) {
         let session = sessions.find(s => survey.sessionId === s.date)
-        if(!session.surveys){
+        if (!session.surveys) {
           session.surveys = []
         }
         session.surveys.push(survey)
@@ -108,7 +108,7 @@ export default {
     return ya.set(`${surveysPath}/${survey.sessionId}.${survey.date}`, survey)
   },
   savePDF (path, followUp, name, contents) {
-    const pdfPath = `${path}/${(followUp)?'':'no'}followup/`
+    const pdfPath = `${path}/${(followUp) ? '' : 'no'}followup/`
     mkdirp.sync(pdfPath)
     return new Promise(function (resolve, reject) {
       fs.writeFile(`${pdfPath}/${name}`, contents, function (err) {

@@ -125,7 +125,7 @@ export default {
     studentId: property('studentId'),
     birthDate: property('birthDate'),
     checkList: property('checkList'),
-    comment:property('comment'),
+    comment: property('comment'),
     canSearch () {
       return this.activeSession.recordsLength > 0
     },

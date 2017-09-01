@@ -48,16 +48,16 @@ export default {
           babyTeeth: [],
           permanentTeeth: [],
           signature: [],
-          date:0
+          date: 0
         }
       }
       this.$nextTick(function () {
         console.log(`Index: ${this.index}`)
-        let prioritySet  = new Set(this.survey.checkList.map(c=>parseInt(c[0])))
-        const followUp = (prioritySet.has(2) || prioritySet.has(3))?'y':'n'
+        let prioritySet = new Set(this.survey.checkList.map(c => parseInt(c[0])))
+        const followUp = (prioritySet.has(2) || prioritySet.has(3)) ? 'y' : 'n'
         document.title = `print:${followUp}:${this.survey.studentId}.${new Date(this.survey.date).toISOString().split('T')[0]}.pdf`
       })
-      this.$store.commit('loadSurveyForPrint', {session:this.session.date, index:this.index})
+      this.$store.commit('loadSurveyForPrint', {session: this.session.date, index: this.index})
       return this.$store.state.survey
     },
     siteName () {

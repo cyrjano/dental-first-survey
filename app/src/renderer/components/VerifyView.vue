@@ -29,11 +29,11 @@ export default {
     signatureLines () {
       return this.$store.state.survey.signature
     },
-    dentist:{
-      get(){
+    dentist: {
+      get () {
         return this.$store.state.survey.dentist
       },
-      set(value){
+      set (value) {
         this.$store.commit('updateSurvey', {dentist: value})
       }
     },

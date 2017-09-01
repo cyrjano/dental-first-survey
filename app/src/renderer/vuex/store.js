@@ -28,7 +28,7 @@ function generatePDFs (exportPath, sessionUrl) {
       let titleParts = title.split(':')
 
       if (titleParts[0] === 'print') {
-        const followUp = titleParts[1] =='y'
+        const followUp = titleParts[1] == 'y'
         const surveyName = titleParts[2]
         win.webContents.printToPDF({}, function (err, data) {
           if (err) {
@@ -58,11 +58,11 @@ function getChildAge (survey, record) {
 }
 
 function getOutputRecord (siteId, siteName, survey, record) {
-  let prioritySet  = new Set(survey.checkList.map(c=>parseInt(c[0])))
+  let prioritySet = new Set(survey.checkList.map(c => parseInt(c[0])))
   const needsFollowUp = prioritySet.has(2) || prioritySet.has(3)
 
   let output = {
-    'Lead type':'DentalFirst',
+    'Lead type': 'DentalFirst',
     'Student ID': survey.studentId,
     'School Site:Account ID': siteId,
     'School Site:Account Name': siteName,
@@ -70,13 +70,13 @@ function getOutputRecord (siteId, siteName, survey, record) {
     'Last Name': survey.lastName,
     'Teacher': survey.teacher,
     'Date of Birth': survey.birthDate,
-    'Priority':[...prioritySet].sort().reverse()[0],
+    'Priority': [...prioritySet].sort().reverse()[0],
     'Follow-up Required': needsFollowUp ? 'Yes' : 'No',
     'Status': needsFollowUp ? 'Open - Outreach Required' : 'Closed - Passed screening',
     'PDF Name': `${survey.studentId}.${new Date(survey.date).toISOString().split('T')[0]}.pdf`,
-    'Screening Outreach':'',
-    'Date Child Screened':new Date(survey.date).toISOString().split('T')[0],
-    'Dentist Name':survey.dentist
+    'Screening Outreach': '',
+    'Date Child Screened': new Date(survey.date).toISOString().split('T')[0],
+    'Dentist Name': survey.dentist
   }
 
   const childsAge = getChildAge(survey, record)
@@ -104,12 +104,12 @@ function cleanSurvey () {
     lastName: '',
     studentId: '',
     birthDate: '',
-    comment:'',
+    comment: '',
     checkList: [],
     babyTeeth: [],
     permanentTeeth: [],
     signature: [],
-    date:0
+    date: 0
   }
 }
 function cleanFullSurvey () {
@@ -148,7 +148,7 @@ let getAccessToken = function (auth) {
 
 let store = new Vuex.Store({
   state: {
-    unique:true,
+    unique: true,
     survey: {
       babyTeethUrl: babyTeethUrl,
       permanentTeethUrl: permanentTeethUrl,
@@ -164,8 +164,8 @@ let store = new Vuex.Store({
       babyTeeth: [],
       permanentTeeth: [],
       signature: [],
-      dentist:'',
-      date:0
+      dentist: '',
+      date: 0
     },
     checkLevels: checkLevels,
     alert: {state: 'success', message: ''},
@@ -198,12 +198,12 @@ let store = new Vuex.Store({
       }
     },
     updateSurvey (state, update) {
-      if(update.studentId && state.activeSession >= 0){
+      if (update.studentId && state.activeSession >= 0) {
         state.unique = !surveys[state.activeSession].some(s => s.studentId === update.studentId)
       }
       Object.assign(state.survey, update)
     },
-    loadSurveyForPrint(state, {session, index}){
+    loadSurveyForPrint (state, {session, index}) {
       console.log('Loading Survey')
       Object.assign(state.survey, surveys[session][index])
     },
@@ -310,10 +310,10 @@ let store = new Vuex.Store({
       commit('selectSite', null)
       commit('updateFile', [])
       commit('updateSurvey', cleanFullSurvey())
-      commit('updateSurvey', {dentist:''})
+      commit('updateSurvey', {dentist: ''})
     },
     saveSession ({state, commit}, {id}) {
-      const session = Vue.util.extend({},state.sessions.find(session => session.date === id))
+      const session = Vue.util.extend({}, state.sessions.find(session => session.date === id))
       session.records = rosters[session.date]
       return storage.saveSession(session).catch(handleError(commit))
     },
@@ -334,7 +334,7 @@ let store = new Vuex.Store({
         babyTeeth: survey.babyTeeth.slice(0),
         permanentTeeth: survey.permanentTeeth.slice(0),
         signature: survey.signature.slice(0),
-        dentist:survey.dentist
+        dentist: survey.dentist
       }
       commit('addSurvey', newSurvey)
       commit('updateSurvey', cleanFullSurvey())
@@ -413,20 +413,20 @@ let store = new Vuex.Store({
       dispatch('saveSites')
       return sites
     },
-    setAlertWithTimeout({commit}, alertInfo){
+    setAlertWithTimeout ({commit}, alertInfo) {
       commit('setAlert', alertInfo)
-      setTimeout(function(){
+      setTimeout(function () {
         commit('clearAlert')
       }, 3000)
     },
     exportSession ({state, commit}, {id, sessionUrl}) {
-      try{
+      try {
         let selectedSession = state.sessions.find(s => s.date == id)
         const files = dialog.showOpenDialog({
           title: 'Export Directory',
           properties: ['openDirectory', 'createDirectory']
         })
-        if(!files){
+        if (!files) {
           return Promise.reject(new Error('User canceled.'))
         }
         const exportPath = files[0]
@@ -437,7 +437,7 @@ let store = new Vuex.Store({
         let csvPromise = storage.saveCSV(`${exportPath}/output.csv`, outputRecords)
         let pdfPromise = generatePDFs(exportPath, sessionUrl)
         return Promise.all([csvPromise, pdfPromise])
-      } catch(error){
+      } catch (error) {
         return Promise.reject(error)
       }
     }
