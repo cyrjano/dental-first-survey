@@ -13,6 +13,7 @@
         <octicon :name="icon" />{{alertMessage}}
       </b-alert>
     </div>
+    <b-navbar type="dark" toggleable="sm" variant="info">
       <b-nav-toggle target="nav_collapse"/>
       <a href='#' class="navbar-brand">DentalFirst</a>
       <b-collapse isNav id="nav_collapse">
