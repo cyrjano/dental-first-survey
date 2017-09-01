@@ -394,7 +394,7 @@ let store = new Vuex.Store({
         if (error.length &&
             error[0].errorCode &&
             error[0].errorCode == 'INVALID_SESSION_ID') {
-          commit('clearAuthParams', ['accessToken'])
+          commit('clearAuthParams', ['accessToken', 'refreshToken'])
           auth = await dispatch('getAuth')
           response = await access.getSites()
         } else {
