@@ -2,23 +2,23 @@
   <layout>
     <div class="d-flex flex-column">
       <div class="start">
-        <div :class="['dropdown', filter?'show':'']">
-          <form class="">
-            <input v-model="filter" data-toggle="dropdown" type="text" class="form-control" placeholder="Search..." autocomplete="off">
-          </form>
-          <div id="sitesDropdown" class="dropdown-menu">
-            <a v-for="item of siteOptions" class="dropdown-item" @click="selectSite(item)" href="#">{{item.name}}</a>
+        <form class="">
+          <div :class="['dropdown', filter?'show':'']">
+              <input v-model="filter" data-toggle="dropdown" type="text" class="form-control" placeholder="Search..." autocomplete="off">
+            <div id="sitesDropdown" class="dropdown-menu">
+              <a v-for="item of siteOptions" class="dropdown-item" @click="selectSite(item)" href="#">{{item.name}}</a>
+            </div>
           </div>
-        </div>
+        </form>
         <div v-show="selectedSite">
           <input type="file" ref="rosterFile" @change="selectFile"></input>
         </div>
         <div class="p-2" v-show="selectedSite">
           <strong>Selected Site:</strong> {{selectedSite}}  <span class="badge badge-warning">{{selectedFile.length}}</span>
         </div>
-        <bButton variant="primary" :disabled="siteSelected" class="btn-sm" @click="newSession">
+        <button :disabled="siteSelected" class="btn btn-primary btn-sm" @click="newSession">
           <octicon name="mortar-board"/>New Session
-        </bButton>
+        </button>
       </div>
       <div class="active-session" v-show="activeSession.siteName">
         <h4>
@@ -29,17 +29,17 @@
         <div>
           <strong>Date:</strong>{{new Date(activeSession.date).toDateString()}}
         </div>
-        <bButton variant="primary sm" style="width:100px" :disabled="loading" @click="exportSession">
+        <button class="btn btn-primary btn-sm" style="width:100px" :disabled="loading" @click="exportSession">
           <span v-show="!loading"><octicon name="cloud-download"/> Export</span>
           <spinner v-show="loading"></spinner>
-        </bButton>
+        </button>
       </div>
       <div v-show="sessions.length">
         <h5>Stored Sessions</h5>
         <div v-for="item of sessions">
-          <bButton variant="primary" style="width:100px" @click="activateSession(item)" :class="[(activeSession.date === item.date)?'disabled':'',(activeSession.date === item.date)?'btn-secondary':'','btn-sm']">
+          <button style="width:100px" @click="activateSession(item)" :class="[(activeSession.date === item.date)?'disabled':'',(activeSession.date === item.date)?'btn-secondary':'btn-primary','btn','btn-sm']">
             {{(activeSession.date === item.date)?'Active':'Activate'}}
-          </bButton>
+          </button>
           <span>
             {{item.siteName}}
             <span class="badge badge-primary">{{item.surveysLength}}</span>

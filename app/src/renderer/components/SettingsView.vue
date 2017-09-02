@@ -6,15 +6,15 @@
           <span>Download Date:{{date}},</span>
           <span>Number of Sites:{{numberSites}}</span>
         </div>
-        <b-button variant="primary" @click="updateSites" :disabled="loading">
+        <button class="btn btn-primary" @click="updateSites" :disabled="loading">
           <span v-show="!loading">Update Sites</span>
           <spinner v-show="loading"></spinner>
-        </b-button>
+        </button>
       </div>
       <div class="d-flex flex-row justify-content-start" style="min-height:40px">
-        <b-button variant="primary" @click="toggleTools">
+        <button class="btn btn-primary" @click="toggleTools">
           Toggle Dev Tools
-        </b-button>
+        </button>
       </div>
     </div>
   </layout>

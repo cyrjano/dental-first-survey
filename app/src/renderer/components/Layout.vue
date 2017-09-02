@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="fixed-bottom">
-      <b-alert :state="alertType" :show="showAlert">
+      <div :class="['alert',alertType]" v-show="showAlert">
         <button type="button"
                         class="close"
                         data-dismiss="alert"
@@ -11,31 +11,28 @@
           <span aria-hidden="true">&times;</span>
         </button>
         <octicon :name="icon" />{{alertMessage}}
-      </b-alert>
+      </div>
     </div>
-    <b-navbar type="dark" toggleable="sm" variant="info">
-      <b-nav-toggle target="nav_collapse"/>
+    <nav class="navbar navbar-expand-sm navbar-inverse navbar-dark bg-primary">
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#nav_collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
       <a href='#' class="navbar-brand">DentalFirst</a>
-      <b-collapse isNav id="nav_collapse">
-        <b-nav isNavBar>
-            <b-nav-item>
+      <div class="collapse navbar-collapse" id="nav_collapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
               <router-link class="text-white" to="/surveys">
                 <octicon name="checklist"/><span class="p-2">Surveys</span>
               </router-link>
-            </b-nav-item>
-            <b-nav-item>
+            </li>
+            <li class="nav-item">
               <router-link class="text-white" to="/settings">
                 <octicon name="gear"/><span class="pl-1">Settings</span>
               </router-link>
-            </b-nav-item>
-            <b-nav-item v-if="false">
-              <router-link class="text-white" to="/verify">
-                <octicon name="question"/><span class="pl-1">Help</span>
-              </router-link>
-            </b-nav-item>
-        </b-nav>
-      </b-collapse>
-    </b-navbar>
+            </li>
+        </ul>
+      </div>
+    </nav>
     <div class="m-2 d-flex flex-column flex-grow">
       <d-title></d-title>
       <div class="flex-grow d-flex flex-column">
@@ -58,7 +55,7 @@
         }[this.$store.state.alert.state]
       },
       alertType () {
-        return this.$store.state.alert.state
+        return 'alert-' + this.$store.state.alert.state
       },
       alertMessage () {
         return this.$store.state.alert.message
