@@ -78,7 +78,6 @@
     "webpack-merge": "^2.4.0"
   },
   "dependencies": {
-    "bootstrap-vue": "^0.9.5",
     "electron-debug": "^1.1.0"
   }
 }
