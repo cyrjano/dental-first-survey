@@ -155,7 +155,7 @@ let getAccessToken = function (auth) {
 
 let store = new Vuex.Store({
   state: {
-    selectedSurvey:-1,
+    editMode: false,
     unique: true,
     survey: {
       babyTeethUrl: babyTeethUrl,
@@ -195,6 +195,9 @@ let store = new Vuex.Store({
     loaded: false
   },
   mutations: {
+    setEditMode(state, payload){
+      state.editMode = payload
+    },
     finishLoading (state) {
       state.loaded = true
     },
@@ -204,9 +207,6 @@ let store = new Vuex.Store({
           state.survey[key].push(lineMap[key])
         }
       }
-    },
-    selectSurvey(state, id){
-        state.selectSurvey = id
     },
     updateSurvey (state, update) {
       if (update.studentId && state.activeSession >= 0) {
@@ -224,9 +224,14 @@ let store = new Vuex.Store({
     addSession (state, session) {
       state.sessions.splice(0, 0, session)
     },
-    addSurvey (state, survey) {
+    addSurveySummary (state, survey) {
       let session = state.sessions.find(s => s.date == state.activeSession)
-      session.surveySummaries.push(getSurveySummary(survey))
+      let index = session.surveySummaries.findIndex(s=>s.date == survey.date)
+      if(index >=0){
+        session.surveySummaries.splice(index,1,getSurveySummary(survey))
+      } else{
+        session.surveySummaries.push(getSurveySummary(survey))
+      }
       surveys[state.activeSession].push(survey)
     },
     updateFile (state, file) {
@@ -277,6 +282,15 @@ let store = new Vuex.Store({
     }
   },
   actions: {
+    cancelEdit({commit,state}){
+      commit('setEditMode', false)
+      commit('updateSurvey', cleanFullSurvey())
+    },
+    editSurvey({commit, state}, {surveyId}){
+      let survey = surveys[state.activeSession].find(s=>s.date===surveyId)
+      commit('setEditMode', true)
+      commit('updateSurvey', survey)
+    },
     deleteSurvey({commit,state}, surveyInfo){
       return storage.deleteSurvey(surveyInfo.sessionId, surveyInfo.surveyId).then(()=>{
           commit('removeSurvey', surveyInfo)
@@ -335,6 +349,7 @@ let store = new Vuex.Store({
       commit('updateFile', [])
       commit('updateSurvey', cleanFullSurvey())
       commit('updateSurvey', {dentist: ''})
+      commit('setEditMode', false)
     },
     saveSession ({state, commit}, {id}) {
       const session = Vue.util.extend({}, state.sessions.find(session => session.date === id))
@@ -342,7 +357,7 @@ let store = new Vuex.Store({
       return storage.saveSession({date:session.date, siteId:session.siteId, siteName:session.siteName}).catch(handleError(commit))
     },
     saveSurvey ({state, commit}) {
-      let survey = state.survey
+      let survey = {...state.survey}
       let newSurvey = {
         date: Date.now(),
         sessionId: state.activeSession,
@@ -360,9 +375,12 @@ let store = new Vuex.Store({
         signature: survey.signature.slice(0),
         dentist: survey.dentist
       }
-      commit('addSurvey', newSurvey)
       commit('updateSurvey', cleanFullSurvey())
-      return storage.saveSurvey(newSurvey)
+      let updateSurvey = state.editMode?survey:newSurvey
+      commit('setEditMode', false)
+      commit('addSurveySummary', updateSurvey)
+      return storage.saveSurvey(updateSurvey).then({})
+
     },
     loadSessions ({commit}) {
       storage.loadSessions().then(function (sessions) {

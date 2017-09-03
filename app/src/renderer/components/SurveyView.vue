@@ -78,6 +78,7 @@
             <sketch :lines="permanentTeeth" :src="permanentTeethUrl" :width="230" :height="300" @line="addPermanentTeethLine" @clear="clearPermanentTeeth"></sketch>
           </div>
           <div class="p-2">
+            <button v-show="isEditing" class="btn btn-secondary" @click="cancelEdit">Cancel</button>
             <button :disabled="!!validationError" class="btn btn-primary" @click.prevent="verify">Verify</button>
           </div>
         </form>
@@ -102,8 +103,11 @@ function property (propertyName) {
 }
 export default {
   computed: {
+    isEditing(){
+      return this.$store.state.editMode;
+    },
     studentErrorClass () {
-      if (this.validationError) {
+      if (this.validationError && !this.isEditing) {
         return 'is-invalid'
       }
       return ''
@@ -113,7 +117,7 @@ export default {
       if (!studentId) {
         return 'Student Id required'
       }
-      if (!this.$store.state.unique) {
+      if (!this.$store.state.unique && !this.isEditing) {
         return 'Student Id must be unique'
       }
       return ''
@@ -170,6 +174,9 @@ export default {
     },
     verify () {
       this.$router.push('/verify')
+    },
+    cancelEdit(){
+      this.$store.dispatch('cancelEdit')
     }
   },
   components: {

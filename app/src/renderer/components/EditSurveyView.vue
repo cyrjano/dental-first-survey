@@ -34,7 +34,7 @@
                 <td>{{survey.studentId}}</td>
                 <td>{{survey.name}}</td>
                 <td>
-                  <button class="btn btn-primary"><octicon name="pencil"/>Edit</button>
+                  <button class="btn btn-primary" @click="editSurvey(survey)"><octicon name="pencil"/>Edit</button>
                   &nbsp;
                   <button class="btn btn-danger" @click="startDelete(survey)"><octicon name="trashcan"/>Delete</button>
                 </td>
@@ -61,12 +61,16 @@ export default {
     }
   },
   methods:{
-    startDelete: function (item){
+    editSurvey(item){
+      this.$store.dispatch('editSurvey', {surveyId:item.date})
+      this.$router.push('/surveys')
+    },
+    startDelete(item){
       this.$data.selectedSurvey = item.date;
       this.$data.studentId = item.studentId;
       $("#deleteModal").modal('show');
     },
-    deleteSurvey: function(){
+    deleteSurvey(){
       this.$store.dispatch('deleteSurvey',
         {
           sessionId:this.$store.state.activeSession,
