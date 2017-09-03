@@ -1,6 +1,14 @@
 
 let checks = [
   {
+    title:'No Immediate Follow-up Required/<em>No se necesita atencion dental urgentemente</em>',
+    options:{
+      A:'Dental screening complete, no immediate follow-up care needed. Please continue with'+
+      ' your routine dental care/La revision dental está completa, no se necesita atención'+
+      ' dental urgentemente. Por favor continúe con su rutina de cuidádo dental.'
+    }
+  },
+  {
     title: 'Routine Dental Care Recommended/<em>Se recomienda Atencion Dental de Rutina</em>',
     options: {
       A: 'Dental cleaning recommended/<em>Se recomienda limpieza dental</em>',
@@ -35,7 +43,7 @@ function calculateCheckList (checks) {
   let checkLevels = []
   for (let i = 0; i < checks.length; i++) {
     let check = checks[i]
-    let checkLevel = {index: i + 1, title: check.title}
+    let checkLevel = {index: i, title: check.title}
     let options = []
     for (var optionLetter in check.options) {
       let option = {

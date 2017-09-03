@@ -55,7 +55,7 @@
             </div>
           </div>
           <div class="form-group">
-            <ol>
+            <ol start=0>
               <li v-for="checkLevel of checkLevels">
                 <h6><span v-html="checkLevel.title"></span></h6>
                 <div class="form-check" v-for="option of checkLevel.options">
