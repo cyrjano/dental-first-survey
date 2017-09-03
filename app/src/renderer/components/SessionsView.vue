@@ -23,7 +23,7 @@
       <div class="active-session" v-show="activeSession.siteName">
         <h4>
           {{activeSession.siteName}}
-          <span class="badge badge-primary">{{activeSession.surveysLength}}</span>
+          <span class="badge badge-primary">{{activeSession.surveySummaries.length}}</span>
           <span class="badge badge-warning">{{activeSession.recordsLength}}</span>
         </h4>
         <div>
@@ -42,7 +42,7 @@
           </button>
           <span>
             {{item.siteName}}
-            <span class="badge badge-primary">{{item.surveysLength}}</span>
+            <span class="badge badge-primary">{{item.surveySummaries.length}}</span>
             <span class="badge badge-warning">{{item.recordsLength}}</span>
           </span>
           ({{new Date(item.date).toDateString()}})
@@ -92,8 +92,8 @@
         }
         return {
           siteName: '',
-          surveys: [],
-          records: [],
+          surveySummaries: [],
+          recordLength: 0,
           date: -1
         }
       },

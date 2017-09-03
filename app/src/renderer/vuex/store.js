@@ -97,6 +97,13 @@ function getOutputRecord (siteId, siteName, survey, record) {
   }
   return output
 }
+function getSurveySummary(survey){
+  return {
+    date:survey.date,
+    studentId:survey.studentId,
+    name:`${survey.firstName} ${survey.lastName}`
+  }
+}
 
 function cleanSurvey () {
   return {
@@ -148,6 +155,7 @@ let getAccessToken = function (auth) {
 
 let store = new Vuex.Store({
   state: {
+    selectedSurvey:-1,
     unique: true,
     survey: {
       babyTeethUrl: babyTeethUrl,
@@ -197,13 +205,16 @@ let store = new Vuex.Store({
         }
       }
     },
+    selectSurvey(state, id){
+        state.selectSurvey = id
+    },
     updateSurvey (state, update) {
       if (update.studentId && state.activeSession >= 0) {
         state.unique = !surveys[state.activeSession].some(s => s.studentId === update.studentId)
       }
       Object.assign(state.survey, update)
     },
-    loadSurveyForPrint (state, {session, index}) {
+    loadSurvey (state, {session, index}) {
       console.log('Loading Survey')
       Object.assign(state.survey, surveys[session][index])
     },
@@ -215,7 +226,7 @@ let store = new Vuex.Store({
     },
     addSurvey (state, survey) {
       let session = state.sessions.find(s => s.date == state.activeSession)
-      session.surveysLength += 1
+      session.surveySummaries.push(getSurveySummary(survey))
       surveys[state.activeSession].push(survey)
     },
     updateFile (state, file) {
@@ -255,9 +266,22 @@ let store = new Vuex.Store({
           state.auth[prop] = payload[prop] || state.auth[prop]
         }
       }
+    },
+    removeSurvey(state, {sessionId, surveyId}){
+      const activeSession = state.sessions.find(s => s.date === sessionId)
+      activeSession.surveySummaries.forEach( (s,i)=>{
+        if(s.date === surveyId){
+          activeSession.surveySummaries.splice(i,1)
+        }
+      })
     }
   },
   actions: {
+    deleteSurvey({commit,state}, surveyInfo){
+      return storage.deleteSurvey(surveyInfo.sessionId, surveyInfo.surveyId).then(()=>{
+          commit('removeSurvey', surveyInfo)
+      })
+    },
     searchId ({commit, state}) {
       const activeSession = state.sessions.find(s => s.date === state.activeSession)
       const record = rosters[state.activeSession].find(r => r.studentId === state.survey.studentId)
@@ -295,7 +319,7 @@ let store = new Vuex.Store({
         date: Date.now(),
         siteId: state.newSession.selectedItem.id,
         siteName: state.newSession.selectedItem.name,
-        surveysLength: 0,
+        surveySummaries: [],
         recordsLength: state.newSession.selectedFile.length
       }
       rosters[session.date] = state.newSession.selectedFile.slice(0)
@@ -315,7 +339,7 @@ let store = new Vuex.Store({
     saveSession ({state, commit}, {id}) {
       const session = Vue.util.extend({}, state.sessions.find(session => session.date === id))
       session.records = rosters[session.date]
-      return storage.saveSession(session).catch(handleError(commit))
+      return storage.saveSession({date:session.date, siteId:session.siteId, siteName:session.siteName}).catch(handleError(commit))
     },
     saveSurvey ({state, commit}) {
       let survey = state.survey
@@ -346,7 +370,7 @@ let store = new Vuex.Store({
           rosters[session.date] = session.records.slice(0)
           surveys[session.date] = session.surveys.slice(0)
           session.recordsLength = rosters[session.date].length
-          session.surveysLength = surveys[session.date].length
+          session.surveySummaries = session.surveys.map(getSurveySummary)
           delete session.records
           delete session.surveys
           commit('addSession', session)

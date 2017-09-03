@@ -10,7 +10,7 @@ export default {
     console.log('Mounting Printer')
     require('electron').ipcRenderer.on('status', (event, message) => {
       console.log(`status:${message}`)
-      if (this.index < this.session.surveysLength - 1) {
+      if (this.index < this.session.surveySummaries.length - 1) {
         this.index = this.index + 1
         console.log(`index:${this.index}`)
       } else {
@@ -57,7 +57,7 @@ export default {
         const followUp = (prioritySet.has(2) || prioritySet.has(3)) ? 'y' : 'n'
         document.title = `print:${followUp}:${this.survey.studentId}.${new Date(this.survey.date).toISOString().split('T')[0]}.pdf`
       })
-      this.$store.commit('loadSurveyForPrint', {session: this.session.date, index: this.index})
+      this.$store.commit('loadSurvey', {session: this.session.date, index: this.index})
       return this.$store.state.survey
     },
     siteName () {

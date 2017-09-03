@@ -13,9 +13,15 @@ export default [
   },
   {
     path: '/surveys',
-    name: 'survey',
+    name: 'surveys',
     component: require('components/SurveyView'),
-    meta: {title: 'Survey'}
+    meta: {title: 'Capture Surveys'}
+  },
+  {
+    path: '/editsurveys',
+    name: 'editsurveys',
+    component: require('components/EditSurveyView'),
+    meta: {title: 'Edit Surveys'}
   },
   {
     path: '/verify',

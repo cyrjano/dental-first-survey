@@ -82,12 +82,17 @@ export default {
     return Promise.all([sessionsPromise, surveysPromise]).then(function (results) {
       console.log('Assigning surveys')
       let sessions = results[0]
+      sessions.forEach(s=>{
+        if(!s.surveys){
+          s.surveys = []
+        }
+        if(!s.records){
+          s.records = []
+        }
+      })
       let surveys = results[1]
       for (const survey of surveys) {
         let session = sessions.find(s => survey.sessionId === s.date)
-        if (!session.surveys) {
-          session.surveys = []
-        }
         session.surveys.push(survey)
       }
       return sessions
@@ -99,6 +104,17 @@ export default {
     }
     console.log(`Saving session ${new Date(session.date)}`)
     return ya.set(`${sessionsPath}/${session.date}`, session)
+  },
+  deleteSurvey(sessionId, surveyId){
+    return new Promise(function(resolve, reject){
+      fs.unlink(`${surveysPath}/${sessionId}.${surveyId}.json`, function(err){
+        if(err){
+          reject(err)
+        }else{
+          resolve()
+        }
+      })
+    })
   },
   saveSurvey (survey) {
     if (!survey) {

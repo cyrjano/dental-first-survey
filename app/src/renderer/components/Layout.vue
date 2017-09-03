@@ -20,9 +20,14 @@
       <a href='#' class="navbar-brand">DentalFirst</a>
       <div class="collapse navbar-collapse" id="nav_collapse">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
+            <li class="nav-item" v-show="hasActiveSession">
               <router-link class="text-white" to="/surveys">
                 <octicon name="checklist"/><span class="p-2">Surveys</span>
+              </router-link>
+            </li>
+            <li class="nav-item" v-show="hasActiveSession">
+              <router-link class="text-white" to="/editsurveys">
+                <octicon name="pencil"/><span class="p-2">Edit Surveys</span>
               </router-link>
             </li>
             <li class="nav-item">
@@ -46,6 +51,9 @@
   import TitleComponent from './TitleComponent.vue'
   export default {
     computed: {
+      hasActiveSession () {
+        return this.$store.state.activeSession >= 0
+      },
       icon () {
         return {
           'success': 'check',
