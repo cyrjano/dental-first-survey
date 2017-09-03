@@ -7,19 +7,20 @@
       <div v-if='hasActiveSession' class="container p-4">
         <form>
           <legend>{{activeSession.siteName}}</legend>
-          <div :class="['form-group','row', studentErrorClass]">
+          <div>
             <label v-show="!canSearch" for="studentIdInput" class="col-1 col-form-label">ID:</label>
             <div  v-show="!canSearch" class="col-11">
-              <input class="form-control" v-model="studentId" type="text" id="studentIdInput"/>
+              <input :class="['form-control', studentErrorClass]" v-model="studentId" type="text" id="studentIdInput"/>
+              <div class="invalid-feedback">{{validationError}}</div>
             </div>
             <label v-show="canSearch" for="studentIdSearch" class="col-1 col-form-label">ID:</label>
             <div v-show="canSearch" class="input-group mb-2 mr-sm-2 mb-sm-0 col-10">
-              <input type="text" v-model="studentId" class="form-control" id="studentIdSearch">
+              <input type="text" v-model="studentId" :class="['form-control', studentErrorClass]" id="studentIdSearch">
+              <div class="invalid-feedback">{{validationError}}</div>
               <span class="input-group-btn">
                 <button class="btn btn-primary" @click="search" type="button"><octicon name="search"/></button>
               </span>
             </div>
-            <div class="form-control-feedback">{{validationError}}</div>
           </div>
           <div class="form-group row">
             <label for="gradeInput" class="col-1 col-form-label">Grade:</label>
@@ -103,7 +104,7 @@ export default {
   computed: {
     studentErrorClass () {
       if (this.validationError) {
-        return 'has-danger'
+        return 'is-invalid'
       }
       return ''
     },
