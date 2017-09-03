@@ -224,7 +224,7 @@ let store = new Vuex.Store({
     addSession (state, session) {
       state.sessions.splice(0, 0, session)
     },
-    addSurveySummary (state, survey) {
+    addSurvey (state, survey) {
       let session = state.sessions.find(s => s.date == state.activeSession)
       let index = session.surveySummaries.findIndex(s=>s.date == survey.date)
       if(index >=0){
@@ -232,7 +232,13 @@ let store = new Vuex.Store({
       } else{
         session.surveySummaries.push(getSurveySummary(survey))
       }
-      surveys[state.activeSession].push(survey)
+      let surveyIndex = surveys[state.activeSession].findIndex(s=>s.date == survey.date)
+      if(surveyIndex >=0){
+        surveys[state.activeSession].splice(surveyIndex,1, survey)
+      } else {
+        surveys[state.activeSession].push(survey)
+      }
+
     },
     updateFile (state, file) {
       state.newSession.selectedFile = file
@@ -378,9 +384,8 @@ let store = new Vuex.Store({
       commit('updateSurvey', cleanFullSurvey())
       let updateSurvey = state.editMode?survey:newSurvey
       commit('setEditMode', false)
-      commit('addSurveySummary', updateSurvey)
-      return storage.saveSurvey(updateSurvey).then({})
-
+      commit('addSurvey', updateSurvey)
+      return storage.saveSurvey(updateSurvey)
     },
     loadSessions ({commit}) {
       storage.loadSessions().then(function (sessions) {
