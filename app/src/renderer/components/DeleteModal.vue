@@ -3,6 +3,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
+          <h5 class="modal-title">{{title}}</h5>
           <button type="button" class="close"  @click="dismiss" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -12,6 +13,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" @click="accept" data-dismiss="modal">Delete</button>
+          <button type="button" class="btn btn-secondary" @click="dismiss" data-dismiss="modal">Cancel</button>
         </div>
       </div>
     </div>
@@ -21,6 +23,7 @@
 export default {
   data(){
     return {
+      resolveCallback:null
     };
   },
   props:{
@@ -29,13 +32,16 @@ export default {
   methods:{
     show(){
       $(this.$refs.modal).modal('show')
+      let promise = new Promise((resolve, reject)=>{
         this.$data.resolveCallback = resolve;
       });
       return promise;
     },
     accept(){
+      this.$data.resolveCallback(true)
     },
     dismiss(){
+      this.$data.resolveCallback(false)
     }
   }
 }

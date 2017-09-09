@@ -49,6 +49,7 @@ export default {
       this.$router.push('/surveys')
     },
     async deleteSurvey(item){
+      const result = await this.$refs.deleteModal.show()
       try{
         if(result){
           await this.$store.dispatch('deleteSurvey',{
