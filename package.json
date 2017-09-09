@@ -23,9 +23,7 @@
   "author": "Greg Holguin <simulatedgreg@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "babel-core": "^6.8.0",
     "babel-eslint": "^7.0.0",
-    "babel-loader": "^6.2.4",
     "babel-plugin-istanbul": "^3.1.2",
     "babel-plugin-transform-runtime": "^6.8.0",
     "babel-preset-electron": "^1.4.15",
