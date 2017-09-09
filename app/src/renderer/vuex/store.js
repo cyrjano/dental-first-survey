@@ -278,6 +278,12 @@ let store = new Vuex.Store({
         }
       }
     },
+    removeSession(state, sessionId){
+      var index = state.sessions.findIndex(s=>s.date === sessionId)
+      state.sessions.splice(index,1)
+      delete surveys[sessionId]
+      delete rosters[sessionId]
+    },
     removeSurvey(state, {sessionId, surveyId}){
       const activeSession = state.sessions.find(s => s.date === sessionId)
       activeSession.surveySummaries.forEach( (s,i)=>{
@@ -285,6 +291,10 @@ let store = new Vuex.Store({
           activeSession.surveySummaries.splice(i,1)
         }
       })
+      const index = surveys[sessionId].findIndex(s=>s.date == surveyId)
+      if(index >= 0){
+        surveys[sessionId].splice(index,1)
+      }
     }
   },
   actions: {
@@ -297,10 +307,13 @@ let store = new Vuex.Store({
       commit('setEditMode', true)
       commit('updateSurvey', survey)
     },
-    deleteSurvey({commit,state}, surveyInfo){
-      return storage.deleteSurvey(surveyInfo.sessionId, surveyInfo.surveyId).then(()=>{
-          commit('removeSurvey', surveyInfo)
-      })
+    async deleteSession({commit, state}, {sessionId}){
+      await storage.deleteSession(sessionId)
+      commit('removeSession', sessionId)
+    },
+    async deleteSurvey({commit,state}, surveyInfo){
+      await storage.deleteSurvey(surveyInfo.sessionId, surveyInfo.surveyId)
+      commit('removeSurvey', surveyInfo)
     },
     searchId ({commit, state}) {
       const activeSession = state.sessions.find(s => s.date === state.activeSession)

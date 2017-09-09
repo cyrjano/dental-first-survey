@@ -1,6 +1,9 @@
 <template>
   <layout>
     <div class="d-flex flex-column">
+      <modal ref="deleteModal" title="Delete Session">
+        <p>Are you sure you want to delete this session and all its captured surveys?</p>
+      </modal>
       <div class="start">
         <form class="">
           <div :class="['dropdown', filter?'show':'']">
@@ -40,6 +43,8 @@
           <button style="width:100px" @click="activateSession(item)" :class="[(activeSession.date === item.date)?'disabled':'',(activeSession.date === item.date)?'btn-secondary':'btn-primary','btn','btn-sm']">
             {{(activeSession.date === item.date)?'Active':'Activate'}}
           </button>
+          &nbsp;
+          <button style="width:100px" @click="deleteSession(item)" :class="[(activeSession.date === item.date)?'disabled':'',(activeSession.date === item.date)?'btn-secondary':'btn-danger','btn','btn-sm']">Delete</button>
           <span>
             {{item.siteName}}
             <span class="badge badge-primary">{{item.surveySummaries.length}}</span>
@@ -54,6 +59,7 @@
 <script>
   import Layout from './Layout'
   import Spinner from './Spinner'
+  import DeleteModal from './DeleteModal'
   import electron from 'electron'
   import fs from 'fs'
   const BrowserWindow = electron.remote.BrowserWindow
@@ -118,6 +124,20 @@
       activateSession (item) {
         this.$store.dispatch('activateSession', {id: item.date})
       },
+      async deleteSession (item) {
+        try{
+          const result = await this.$refs.deleteModal.show()
+          if(result){
+            await this.$store.dispatch('deleteSession', {sessionId:item.date})
+            await this.$store.dispatch('setAlertWithTimeout', {
+              state: 'success',
+              message: `Delete session successfully: ${item.siteName}(${new Date(item.date).toDateString()})`
+            })
+          }
+        }catch(error){
+          this.$store.commit('setAlert', {state: 'danger', message: error.message})
+        }
+      },
       exportSession () {
         let routeInfo = this.$router.resolve({
           name: 'print',
@@ -138,7 +158,8 @@
     },
     components: {
       layout: Layout,
-      spinner: Spinner
+      spinner: Spinner,
+      modal:DeleteModal
     }
   }
 </script>

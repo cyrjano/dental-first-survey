@@ -11,6 +11,17 @@ const sitesPath = `${settingsPath}/sites`
 const sessionsPath = `${appPath}/sessions`
 const surveysPath = `${appPath}/surveys`
 
+function deleteFile(path){
+  return new Promise(function(resolve, reject){
+    fs.unlink(path, function(err){
+      if(err){
+        reject(err)
+      }else{
+        resolve()
+      }
+    })
+  })
+}
 function getFiles (path) {
   mkdirp.sync(path)
   return new Promise(function (resolve, reject) {
@@ -105,16 +116,15 @@ export default {
     console.log(`Saving session ${new Date(session.date)}`)
     return ya.set(`${sessionsPath}/${session.date}`, session)
   },
-  deleteSurvey(sessionId, surveyId){
-    return new Promise(function(resolve, reject){
-      fs.unlink(`${surveysPath}/${sessionId}.${surveyId}.json`, function(err){
-        if(err){
-          reject(err)
-        }else{
-          resolve()
-        }
-      })
-    })
+  async deleteSession(sessionId){
+    const surveyFiles = await getFiles(surveysPath)
+    const re = new RegExp(`${sessionId}[.][0-9]+[.]json`)
+    let filesToDelete = surveyFiles.filter(s=>re.test(s)).map(s=>`${surveysPath}/${s}`)
+    filesToDelete.push(`${sessionsPath}/${sessionId}.json`)
+    await Promise.all(filesToDelete.map(deleteFile))
+  },
+  async deleteSurvey(sessionId, surveyId){
+    await deleteFile(`${surveysPath}/${sessionId}.${surveyId}.json`)
   },
   saveSurvey (survey) {
     if (!survey) {
