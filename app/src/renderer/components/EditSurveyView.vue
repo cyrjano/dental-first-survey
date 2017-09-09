@@ -1,25 +1,9 @@
 <template>
   <layout>
       <div class="d-flex flex-column">
-        <div  id="deleteModal" class="modal fade">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Confirm Deletion</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <p>Are you sure you want to delete this survey?</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-danger" @click="deleteSurvey">Delete</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <modal ref="deleteModal" title="Delete Survey">
+          <p>Are you sure you want to remove this survey?</p>
+        </modal>
         <div>
           <table class="table">
             <thead>
@@ -36,7 +20,7 @@
                 <td>
                   <button class="btn btn-primary" @click="editSurvey(survey)"><octicon name="pencil"/>Edit</button>
                   &nbsp;
-                  <button class="btn btn-danger" @click="startDelete(survey)"><octicon name="trashcan"/>Delete</button>
+                  <button class="btn btn-danger" @click="deleteSurvey(survey)"><octicon name="trashcan"/>Delete</button>
                 </td>
               </tr>
             </tbody>
@@ -47,13 +31,12 @@
 </template>
 <script>
 import Layout from './Layout'
+import DeleteModal from './DeleteModal'
 
 export default {
-  data(){
-    return {selectedSurvey:-1, studentId:''}
-  },
   components: {
-    layout: Layout
+    layout: Layout,
+    modal: DeleteModal
   },
   computed:{
     surveySummaries () {
@@ -65,29 +48,21 @@ export default {
       this.$store.dispatch('editSurvey', {surveyId:item.date})
       this.$router.push('/surveys')
     },
-    startDelete(item){
-      this.$data.selectedSurvey = item.date;
-      this.$data.studentId = item.studentId;
-      $("#deleteModal").modal('show');
-    },
-    deleteSurvey(){
-      this.$store.dispatch('deleteSurvey',
-        {
-          sessionId:this.$store.state.activeSession,
-          surveyId:this.$data.selectedSurvey
-        }).then(()=>{
-          this.$data.selectedSurvey = -1
-          $('#deleteModal').modal('hide')
-          return this.$store.dispatch('setAlertWithTimeout', {
+    async deleteSurvey(item){
+      try{
+        if(result){
+          await this.$store.dispatch('deleteSurvey',{
+              sessionId:this.$store.state.activeSession,
+              surveyId:item.date
+            })
+          await this.$store.dispatch('setAlertWithTimeout', {
             state: 'success',
-            message: `Delete survey successfully for student:${this.$data.studentId}`
-          }).then(()=>{
-            this.$data.studentId = ''
+            message: `Delete survey successfully for student:${item.studentId}`
           })
-
-        }).catch(error => {
-          this.$store.commit('setAlert', {state: 'danger', message: error.message})
-        })
+        }
+      } catch(error){
+        this.$store.commit('setAlert', {state: 'danger', message: error.message})
+      }
     }
   }
 }
