@@ -24,6 +24,12 @@ export default [
     meta: {title: 'Edit Surveys'}
   },
   {
+    path: '/findstudent',
+    name: 'findstudent',
+    component: require('components/FindStudentView'),
+    meta: {title: 'Find Student from Roster'}
+  },
+  {
     path: '/verify',
     name: 'verify',
     component: require('components/VerifyView'),

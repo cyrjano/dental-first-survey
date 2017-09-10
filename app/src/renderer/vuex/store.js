@@ -15,6 +15,17 @@ let rosters = {}
 let surveys = {}
 
 Vue.use(Vuex)
+function recordFinder(query){
+  const q = query.toLowerCase();
+  return function(record){
+    if(!record.studentId){
+      return false;
+    }
+    const firstName = (record.firstName || '').toLowerCase();
+    const lastName = (record.lastName || '').toLowerCase();
+    return `${firstName} ${lastName}`.includes(q);
+  }
+}
 function generatePDFs (exportPath, sessionUrl) {
   return new Promise(function (resolve, reject) {
     let win = new BrowserWindow({useContentSize: true, show: true})
@@ -298,6 +309,13 @@ let store = new Vuex.Store({
     }
   },
   actions: {
+    async selectStudent({commit, state, dispatch}, {studentId}){
+      commit('setEditMode', false)
+      let survey = cleanFullSurvey()
+      survey.studentId = studentId;
+      this.commit('updateSurvey', survey)
+      await dispatch('searchId',studentId)
+    },
     cancelEdit({commit,state}){
       commit('setEditMode', false)
       commit('updateSurvey', cleanFullSurvey())
@@ -314,6 +332,17 @@ let store = new Vuex.Store({
     async deleteSurvey({commit,state}, surveyInfo){
       await storage.deleteSurvey(surveyInfo.sessionId, surveyInfo.surveyId)
       commit('removeSurvey', surveyInfo)
+    },
+    findStudents({commit,state}, query){
+      return rosters[state.activeSession].filter(recordFinder(query)).map(
+        r=> {
+          return {
+          'studentId':r.studentId || '',
+          'firstName':r.firstName|| '',
+          'lastName':r.lastName|| '',
+          'birthDate':r.birthDate || ''
+          }
+      })
     },
     searchId ({commit, state}) {
       const activeSession = state.sessions.find(s => s.date === state.activeSession)

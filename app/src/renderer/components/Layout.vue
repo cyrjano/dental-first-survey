@@ -26,6 +26,11 @@
               </router-link>
             </li>
             <li class="nav-item" v-show="hasActiveSession">
+              <router-link class="text-white" to="/findstudent">
+                <octicon name="search"/><span class="p-2">Find Student</span>
+              </router-link>
+            </li>
+            <li class="nav-item" v-show="hasActiveSession">
               <router-link class="text-white" to="/editsurveys">
                 <octicon name="pencil"/><span class="p-2">Edit Surveys</span>
               </router-link>
