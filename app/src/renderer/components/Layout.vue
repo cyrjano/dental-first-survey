@@ -17,7 +17,7 @@
       <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#nav_collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <a href='#' class="navbar-brand">DentalFirst</a>
+      <router-link class="navbar-brand" to="/sessions">DentalFirst</router-link>
       <div class="collapse navbar-collapse" id="nav_collapse">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item" v-show="hasActiveSession">

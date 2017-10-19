@@ -1,9 +1,9 @@
 <template>
   <div>
     <div class="page-title">
-      <img width="100px" src="../assets/logo.jpg">
+      <img width="80px" src="../assets/logo.jpg">
     </div>
-    <div class="student py-2">
+    <div class="student py-0">
       Your child received a free dental screening. This screening consists of a
       visual exam performed by a licensed dental professional./ Su ni&ntilde;o
       recibi&oacute; un examen de detecci&oacute;n dental gratuita. Este examen
@@ -22,16 +22,16 @@
       </div>
     </div>
     <div class="student" v-for="checkLevel of checkLevels" v-show="showLevel(checkLevel)">
-      <dl>
+      <dl class="m-0">
         <dt>{{checkLevel.index}}. <span v-html="checkLevel.title"></span></dt>
-        <dd v-for="option of checkLevel.options" v-show="showOption(option.value)">
+        <dd class="m-0" v-for="option of checkLevel.options" v-show="showOption(option.value)">
           {{option.letter}}. <span v-html="option.text"></span>
         </dd>
       </dl>
     </div>
     <div class="row" v-show="survey.comment">
       <div class="col-8">
-        <strong>Comment/Commentario:</strong>
+        <strong>Comment/Comentario:</strong>
         <blockquote class="blockquote" style="font-size:.9em">
           <p class="mb-0 mt-0">{{survey.comment}}</p>
         </blockquote>
@@ -41,14 +41,14 @@
       <Drawing  :lines="survey.babyTeeth" :src="babyTeethUrl" :width="230" :height="300"/>
       <Drawing  :lines="survey.permanentTeeth" :src="permanentTeethUrl" :width="230" :height="300"/>
     </div>
-    <div v-show="showSignature">
-      <Drawing class="decorated" :width="300" :height="140" :lines="survey.signature"/>
-    </div>
-    <div class="subline row" v-show="showSignature">
-      <div class="col-4">{{survey.dentist}}</div> <div class="col-2">{{formatDate(survey.date)}}</div>
-    </div>
-    <div class="footer" v-show="showSignature">
-      Visit us at <a href="//www.hkidsf.org">www.hkidsf.org</a>
+    <div v-show="forPrint" class="row">
+      <div class="col">
+        <Drawing class="decorated" :width="300" :height="60" :lines="survey.signature"/>
+      </div>
+      <div class="subline col"><div>{{survey.dentist}}</div>
+        <div>{{formatDate(survey.date)}}</div>
+        <div>Visit us at <a href="//www.hkidsf.org">www.hkidsf.org</a></div>
+      </div>
     </div>
   </div>
 </template>
@@ -58,7 +58,7 @@ export default{
   props: {
     survey: {type: Object},
     siteName: {type: String},
-    showSignature: {type: Boolean, default: false}
+    forPrint: {type: Boolean, default: false}
   },
   computed: {
     babyTeethUrl () {

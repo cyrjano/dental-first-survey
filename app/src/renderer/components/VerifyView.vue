@@ -1,9 +1,9 @@
 <template>
   <layout>
     <div class="p-4">
-      <ViewSurvey :site-name="siteName" :show-signature="false" :survey="survey"></ViewSurvey>
+      <ViewSurvey :for-print="true" :site-name="siteName" :survey="survey"></ViewSurvey>
       <div>
-        <Sketch :width="300" :height="140" :lines="signatureLines" @line="addSignatureLine" @clear="clearSignature">
+        <Sketch :width="300" :height="60" :lines="signatureLines" @line="addSignatureLine" @clear="clearSignature">
         </Sketch>
       </div>
       <div class="form-group row">

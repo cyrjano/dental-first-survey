@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <view-survey :siteName="siteName" :show-signature="true" :survey="survey"></view-survey>
+    <view-survey :siteName="siteName" :for-print="true" :survey="survey"></view-survey>
   </div>
 </template>
 <script>
