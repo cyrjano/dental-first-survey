@@ -1,7 +1,7 @@
 <template>
   <layout>
     <div class="p-4">
-      <ViewSurvey :for-print="true" :site-name="siteName" :survey="survey"></ViewSurvey>
+      <ViewSurvey :for-print="false" :site-name="siteName" :survey="survey"></ViewSurvey>
       <div>
         <Sketch :width="300" :height="60" :lines="signatureLines" @line="addSignatureLine" @clear="clearSignature">
         </Sketch>
